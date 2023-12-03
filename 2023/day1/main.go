@@ -32,3 +32,14 @@ func (t *Trebuchet) CalibrationValues() []int {
 
 	return result
 }
+
+func (t *Trebuchet) Sum() int {
+	calibrationValues := t.CalibrationValues()
+	sum := 0
+
+	for _, val := range calibrationValues {
+		sum += val
+	}
+
+	return sum
+}
