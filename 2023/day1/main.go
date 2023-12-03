@@ -1,6 +1,9 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"os"
 	"strconv"
 	"unicode"
 )
@@ -42,4 +45,23 @@ func (t *Trebuchet) Sum() int {
 	}
 
 	return sum
+}
+
+func main() {
+	file, err := os.Open("input")
+
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	reader := bufio.NewScanner(file)
+
+	var document []string
+	for reader.Scan() {
+		document = append(document, reader.Text())
+	}
+
+	trebuchet := Trebuchet{calibrationDocument: document}
+	fmt.Println(trebuchet.Sum())
 }
