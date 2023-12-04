@@ -53,11 +53,15 @@ func (p *Play) Valid(validPlay *Play) bool {
 }
 
 type Game struct {
+	id    int
 	plays []*Play
 }
 
 func NewGame(input string) *Game {
-	playsInputString := strings.Split(input, ":")[1]
+	inputSplitted := strings.Split(input, ":")
+	gameString := inputSplitted[0]
+	id := strings.Split(gameString, " ")[1]
+	playsInputString := inputSplitted[1]
 	playsInput := strings.Split(playsInputString, ";")
 
 	var plays []*Play
@@ -67,11 +71,16 @@ func NewGame(input string) *Game {
 		plays = append(plays, NewPlay(trimmedInput))
 	}
 
-	return &Game{plays}
+	idInt, _ := strconv.Atoi(string(id))
+	return &Game{idInt, plays}
 }
 
 func (g *Game) Plays() []*Play {
 	return g.plays
+}
+
+func (g *Game) Id() int {
+	return g.id
 }
 
 func (g *Game) Valid(validPlay *Play) bool {
@@ -82,4 +91,41 @@ func (g *Game) Valid(validPlay *Play) bool {
 	}
 
 	return true
+}
+
+type GameRecords struct {
+	games []*Game
+}
+
+func NewGameRecords(gamesInput []string) *GameRecords {
+	games := make([]*Game, len(gamesInput))
+	for i, gameInput := range gamesInput {
+		games[i] = NewGame(gameInput)
+	}
+
+	return &GameRecords{games}
+}
+
+func (gr *GameRecords) ValidGames(validPlay *Play) []*Game {
+	var validGames []*Game
+
+	for _, game := range gr.games {
+		if game.Valid(validPlay) {
+			validGames = append(validGames, game)
+		}
+	}
+
+	return validGames
+}
+
+func (gr *GameRecords) SumValidGameIds(validPlay *Play) int {
+	sum := 0
+
+	for _, game := range gr.games {
+		if game.Valid(validPlay) {
+			sum += game.Id()
+		}
+	}
+
+	return sum
 }

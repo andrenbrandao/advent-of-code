@@ -1,20 +1,28 @@
 package main
 
-// func main() {
-// 	file, err := os.Open("input")
+import (
+	"bufio"
+	"day2/pkg/games"
+	"fmt"
+	"os"
+)
 
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	defer file.Close()
+func main() {
+	file, err := os.Open("input")
 
-// 	reader := bufio.NewScanner(file)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
 
-// 	var games []string
-// 	for reader.Scan() {
-// 		games = append(games, reader.Text())
-// 	}
+	reader := bufio.NewScanner(file)
 
-// 	trebuchet := games.NewGame(document)
-// 	fmt.Println(trebuchet.Sum())
-// }
+	var gamesInput []string
+	for reader.Scan() {
+		gamesInput = append(gamesInput, reader.Text())
+	}
+
+	gameRecords := games.NewGameRecords(gamesInput)
+	validPlay := games.NewPlay("12 red, 13 green, 14 blue")
+	fmt.Println(gameRecords.SumValidGameIds(validPlay))
+}
