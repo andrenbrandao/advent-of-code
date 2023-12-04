@@ -23,6 +23,5 @@ func main() {
 	}
 
 	gameRecords := games.NewGameRecords(gamesInput)
-	validPlay := games.NewPlay("12 red, 13 green, 14 blue")
-	fmt.Println(gameRecords.SumValidGameIds(validPlay))
+	fmt.Println(gameRecords.SumPowerSetCubes())
 }

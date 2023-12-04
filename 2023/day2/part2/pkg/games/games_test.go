@@ -60,6 +60,16 @@ func TestPlay(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("power set of cubes", func(t *testing.T) {
+		play := NewPlay("3 blue, 4 red, 2 green")
+		got := play.PowerSet()
+		want := 24
+
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
 }
 
 func TestGame(t *testing.T) {
@@ -132,6 +142,7 @@ func TestGame(t *testing.T) {
 			}
 		}
 	})
+
 }
 
 func TestGameRecords(t *testing.T) {
@@ -185,6 +196,30 @@ func TestGameRecords(t *testing.T) {
 
 		for _, tt := range validationTests {
 			got := NewGameRecords(tt.input).SumValidGameIds(validPlay)
+
+			if got != tt.want {
+				t.Errorf("got %v want %v", got, tt.want)
+			}
+		}
+	})
+
+	t.Run("sum of power set of cubes", func(t *testing.T) {
+		validationTests := []struct {
+			input []string
+			want  int
+		}{
+			{[]string{
+				"Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green",
+				"Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue",
+				"Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red",
+				"Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red",
+				"Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green",
+			},
+				2286},
+		}
+
+		for _, tt := range validationTests {
+			got := NewGameRecords(tt.input).SumPowerSetCubes()
 
 			if got != tt.want {
 				t.Errorf("got %v want %v", got, tt.want)

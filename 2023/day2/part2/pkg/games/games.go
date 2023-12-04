@@ -59,6 +59,10 @@ func (p *Play) MinPlay(other *Play) *Play {
 	return &Play{blue, red, green}
 }
 
+func (p *Play) PowerSet() int {
+	return p.blue * p.red * p.green
+}
+
 type Game struct {
 	id    int
 	plays []*Play
@@ -142,6 +146,17 @@ func (gr *GameRecords) SumValidGameIds(validPlay *Play) int {
 		if game.Valid(validPlay) {
 			sum += game.Id()
 		}
+	}
+
+	return sum
+}
+
+func (gr *GameRecords) SumPowerSetCubes() int {
+	sum := 0
+
+	for _, game := range gr.games {
+		minPlay := game.MinPlay()
+		sum += minPlay.PowerSet()
 	}
 
 	return sum
