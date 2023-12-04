@@ -10,13 +10,15 @@ type EngineSchematic struct {
 	schematic string
 }
 
+type Part int
+
 func NewEngineSchematic(input string) *EngineSchematic {
 	return &EngineSchematic{input}
 }
 
-func (e *EngineSchematic) Parts() []int {
+func (e *EngineSchematic) Parts() []Part {
 	lines := strings.Split(e.schematic, "\n")
-	var parts []int
+	var parts []Part
 
 	for _, line := range lines {
 		n := len(line)
@@ -30,7 +32,7 @@ func (e *EngineSchematic) Parts() []int {
 				}
 
 				partInt, _ := strconv.Atoi(line[i:j])
-				parts = append(parts, partInt)
+				parts = append(parts, Part(partInt))
 
 				i = j
 			}
