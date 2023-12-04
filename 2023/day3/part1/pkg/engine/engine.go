@@ -16,6 +16,11 @@ func NewEngineSchematic(input string) *EngineSchematic {
 	return &EngineSchematic{input}
 }
 
+func NewPart(val int) *Part {
+	part := Part(val)
+	return &part
+}
+
 func (e *EngineSchematic) Parts() []Part {
 	lines := strings.Split(e.schematic, "\n")
 	var parts []Part
@@ -32,7 +37,7 @@ func (e *EngineSchematic) Parts() []Part {
 				}
 
 				partInt, _ := strconv.Atoi(line[i:j])
-				parts = append(parts, Part(partInt))
+				parts = append(parts, *NewPart(partInt))
 
 				i = j
 			}
