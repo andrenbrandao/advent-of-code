@@ -46,6 +46,12 @@ func (p *Play) Green() int {
 	return p.red
 }
 
+func (p *Play) Valid(validPlay *Play) bool {
+	return p.red <= validPlay.red &&
+		p.blue <= validPlay.blue &&
+		p.green <= validPlay.green
+}
+
 type Game struct {
 	plays []*Play
 }
