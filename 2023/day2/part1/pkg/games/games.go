@@ -73,3 +73,13 @@ func NewGame(input string) *Game {
 func (g *Game) Plays() []*Play {
 	return g.plays
 }
+
+func (g *Game) Valid(validPlay *Play) bool {
+	for _, play := range g.plays {
+		if !play.Valid(validPlay) {
+			return false
+		}
+	}
+
+	return true
+}

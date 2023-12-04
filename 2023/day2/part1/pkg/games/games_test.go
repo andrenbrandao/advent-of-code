@@ -55,4 +55,29 @@ func TestGame(t *testing.T) {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
+
+	t.Run("validates a game based on a valid play", func(t *testing.T) {
+		validationTests := []struct {
+			input string
+			want  bool
+		}{
+			{"Game 1: 3 blue, 4 red", true},
+			{"Game 2: 1 red, 2 green, 6 blue", true},
+			{"Game 3: 12 red, 13 green, 14 blue", true},
+			{"Game 4: 13 red, 13 green, 14 blue", false},
+			{"Game 5: 12 red, 14 green, 14 blue", false},
+			{"Game 6: 12 red, 13 green, 15 blue", false},
+			{"Game 7: 1 red, 2 green, 6 blue; 12 red, 13 green, 15 blue", false},
+		}
+
+		validPlay := NewPlay("12 red, 13 green, 14 blue")
+
+		for _, tt := range validationTests {
+			got := NewGame(tt.input).Valid(validPlay)
+
+			if got != tt.want {
+				t.Errorf("got %v want %v", got, tt.want)
+			}
+		}
+	})
 }
