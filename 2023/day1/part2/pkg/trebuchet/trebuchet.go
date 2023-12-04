@@ -59,26 +59,26 @@ func (*Trebuchet) extractValue(s string) int {
 	lastInt := -1
 	n := len(s)
 
-	// Time Complexity: O(n^2*t*k)
+	// Time Complexity: O(n*t*k)
 	// where n is the size of the word
 	// t is the size of the longest token
 	// k is the number of tokens
 	for i := 0; i < n; i++ {
-		for j := i; j < n; j++ {
-			c := s[i : j+1]
+		for k, v := range tokenMap {
+			tokenLength := len(k)
+			lastPos := min(i+tokenLength, n)
 
-			val, ok := tokenMap[string(c)]
-			if !ok {
+			c := s[i:lastPos]
+
+			if c != k {
 				continue
 			}
 
-			i = j + 1
-
 			if firstInt == -1 {
-				firstInt = val
+				firstInt = v
 			}
 
-			lastInt = val
+			lastInt = v
 		}
 	}
 
