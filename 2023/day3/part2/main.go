@@ -15,5 +15,5 @@ func main() {
 	}
 
 	engineSchematic := engine.NewEngineSchematic(string(input))
-	fmt.Println(engineSchematic.SumParts())
+	fmt.Println(engineSchematic.SumGearRatios())
 }
