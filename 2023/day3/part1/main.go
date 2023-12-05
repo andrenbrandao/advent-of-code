@@ -1,25 +1,19 @@
 package main
 
 import (
-	"bufio"
+	"day3/pkg/engine"
 	"fmt"
+	"log"
 	"os"
 )
 
 func main() {
-	file, err := os.Open("input")
+	input, err := os.ReadFile("input")
 
 	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	reader := bufio.NewScanner(file)
-
-	var input []string
-	for reader.Scan() {
-		input = append(input, reader.Text())
+		log.Fatal(err)
 	}
 
-	fmt.Println(input)
+	engineSchematic := engine.NewEngineSchematic(string(input))
+	fmt.Println(engineSchematic.SumParts())
 }

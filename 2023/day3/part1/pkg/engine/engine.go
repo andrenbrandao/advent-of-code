@@ -21,6 +21,10 @@ func NewPart(val int) *Part {
 	return &part
 }
 
+func (p *Part) ToInt() int {
+	return int(*p)
+}
+
 func (e *EngineSchematic) Parts() []Part {
 	lines := strings.Split(e.schematic, "\n")
 	var parts []Part
@@ -74,4 +78,13 @@ func (e *EngineSchematic) hasNeighborSymbol(left, right, linePos int, lines []st
 	}
 
 	return isSymbol(linePos, left-1, lines) || isSymbol(linePos, right+1, lines)
+}
+
+func (e *EngineSchematic) SumParts() int {
+	sum := 0
+	for _, p := range e.Parts() {
+		sum += p.ToInt()
+	}
+
+	return sum
 }

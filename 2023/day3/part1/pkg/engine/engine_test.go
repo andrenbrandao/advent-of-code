@@ -27,4 +27,25 @@ func TestEngineSchematic(t *testing.T) {
 		}
 	})
 
+	t.Run("gets sum of all parts", func(t *testing.T) {
+		input := `467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..`
+
+		engineSchematic := NewEngineSchematic(input)
+		got := engineSchematic.SumParts()
+		want := 4361
+
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+
 }
