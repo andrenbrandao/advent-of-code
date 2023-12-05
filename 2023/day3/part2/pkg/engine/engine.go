@@ -125,17 +125,6 @@ func (e *EngineSchematic) Gears() []*Gear {
 	return gears
 }
 
-type Gear struct {
-	parts []*Part
-}
-
-func NewGear(parts []*Part) (*Gear, error) {
-	if len(parts) != 2 {
-		return nil, errors.New("Invalid number of parts")
-	}
-	return &Gear{parts}, nil
-}
-
 func (e *EngineSchematic) extractGears() []*Gear {
 	lines := strings.Split(e.schematic, "\n")
 	var gears []*Gear
@@ -208,4 +197,19 @@ func (e *EngineSchematic) neighborParts(pos, linePos int, lines []string) []*Par
 	}
 
 	return parts
+}
+
+type Gear struct {
+	parts []*Part
+}
+
+func NewGear(parts []*Part) (*Gear, error) {
+	if len(parts) != 2 {
+		return nil, errors.New("Invalid number of parts")
+	}
+	return &Gear{parts}, nil
+}
+
+func (g *Gear) GearRatio() int {
+	return int(*g.parts[0] * *g.parts[1])
 }

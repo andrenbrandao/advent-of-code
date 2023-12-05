@@ -99,3 +99,17 @@ func TestEngineSchematic(t *testing.T) {
 		}
 	})
 }
+
+func TestGear(t *testing.T) {
+	t.Run("gear ratio", func(t *testing.T) {
+		parts := []*Part{NewPart(147), NewPart(285)}
+		gear, _ := NewGear(parts)
+
+		got := gear.GearRatio()
+		want := 41895
+
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+}
