@@ -98,6 +98,27 @@ func TestEngineSchematic(t *testing.T) {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
+
+	t.Run("sum of gear ratios", func(t *testing.T) {
+		input := `467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..`
+
+		engineSchematic := NewEngineSchematic(input)
+		got := engineSchematic.SumGearRatios()
+		want := 467835
+
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
 }
 
 func TestGear(t *testing.T) {

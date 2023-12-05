@@ -199,6 +199,16 @@ func (e *EngineSchematic) neighborParts(pos, linePos int, lines []string) []*Par
 	return parts
 }
 
+func (e *EngineSchematic) SumGearRatios() int {
+	sum := 0
+
+	for _, gear := range e.Gears() {
+		sum += gear.GearRatio()
+	}
+
+	return sum
+}
+
 type Gear struct {
 	parts []*Part
 }
