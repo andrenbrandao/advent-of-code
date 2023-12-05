@@ -33,23 +33,21 @@ func (e *EngineSchematic) Parts() []Part {
 		n := len(line)
 
 		for i := 0; i < n; i++ {
+			if !unicode.IsDigit(rune(line[i])) {
+				continue
+			}
+
 			j := i
+			for j < n && unicode.IsDigit(rune(line[j])) {
+				j++
+			}
 
-			if unicode.IsDigit(rune(line[j])) {
-				for j < n && unicode.IsDigit(rune(line[j])) {
-					j++
-				}
-
-				if !e.hasNeighborSymbol(i, j-1, linePos, lines) {
-					i = j
-					continue
-				}
-
+			if e.hasNeighborSymbol(i, j-1, linePos, lines) {
 				partInt, _ := strconv.Atoi(line[i:j])
 				parts = append(parts, *NewPart(partInt))
-
-				i = j
 			}
+
+			i = j
 		}
 	}
 
@@ -57,10 +55,10 @@ func (e *EngineSchematic) Parts() []Part {
 }
 
 func (e *EngineSchematic) hasNeighborSymbol(left, right, linePos int, lines []string) bool {
-	isSymbol := func(i, j int, lines []string) bool {
-		width := len(lines[0])
-		height := len(lines)
+	width := len(lines[0])
+	height := len(lines)
 
+	isSymbol := func(i, j int, lines []string) bool {
 		if i < 0 || i >= height || j < 0 || j >= width {
 			return false
 		}

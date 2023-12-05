@@ -48,4 +48,28 @@ func TestEngineSchematic(t *testing.T) {
 		}
 	})
 
+	t.Run("ignores line breaks", func(t *testing.T) {
+		input := `100
+200`
+
+		engineSchematic := NewEngineSchematic(input)
+		got := engineSchematic.SumParts()
+		want := 0
+
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+
+	t.Run("works for one line", func(t *testing.T) {
+		input := `503+`
+
+		engineSchematic := NewEngineSchematic(input)
+		got := engineSchematic.SumParts()
+		want := 503
+
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
 }
