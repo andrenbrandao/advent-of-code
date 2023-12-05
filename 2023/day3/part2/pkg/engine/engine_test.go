@@ -77,4 +77,25 @@ func TestEngineSchematic(t *testing.T) {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
+
+	t.Run("gets the gears in the schematics", func(t *testing.T) {
+		input := `467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..`
+
+		engineSchematic := NewEngineSchematic(input)
+		got := len(engineSchematic.Gears())
+		want := 2
+
+		if got != want {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
 }
