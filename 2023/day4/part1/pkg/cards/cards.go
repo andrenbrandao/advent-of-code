@@ -28,7 +28,7 @@ func NewCard(input string) *Card {
 func extractCardNumber(input string) int {
 	s := strings.Split(input, ":")
 	cardStr := s[0]
-	s = strings.Split(cardStr, " ")
+	s = strings.Fields(cardStr)
 	cardNumber, err := strconv.Atoi(string(s[1]))
 
 	if err != nil {
@@ -108,6 +108,10 @@ func NewScratchCards(input string) *ScratchCards {
 	cards := []*Card{}
 
 	for _, line := range lines {
+		if len(line) == 0 {
+			continue
+		}
+
 		cards = append(cards, NewCard(line))
 	}
 

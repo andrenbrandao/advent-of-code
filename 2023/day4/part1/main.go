@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day4/pkg/cards"
 	"fmt"
 	"log"
 	"os"
@@ -13,5 +14,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(input)
+	scratchCards := cards.NewScratchCards(string(input))
+	fmt.Println(scratchCards.TotalPoints())
 }
