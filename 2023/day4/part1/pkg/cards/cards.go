@@ -98,3 +98,28 @@ func (c *Card) Points() int {
 
 	return int(math.Pow(2, n-1))
 }
+
+type ScratchCards struct {
+	cards []*Card
+}
+
+func NewScratchCards(input string) *ScratchCards {
+	lines := strings.Split(input, "\n")
+	cards := []*Card{}
+
+	for _, line := range lines {
+		cards = append(cards, NewCard(line))
+	}
+
+	return &ScratchCards{cards: cards}
+}
+
+func (s *ScratchCards) TotalPoints() int {
+	total := 0
+
+	for _, card := range s.cards {
+		total += card.Points()
+	}
+
+	return total
+}
