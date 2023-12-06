@@ -2,6 +2,7 @@ package cards
 
 import (
 	"log"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -85,4 +86,15 @@ func (c *Card) WinningNumbers() []int {
 	}
 
 	return winningNumbers
+}
+
+func (c *Card) Points() int {
+	winningNumbers := c.WinningNumbers()
+	n := float64(len(winningNumbers))
+
+	if n == 0 {
+		return 0
+	}
+
+	return int(math.Pow(2, n-1))
 }
