@@ -136,6 +136,8 @@ func (s *ScratchCards) TotalPoints() int {
 	return total
 }
 
+// Not optimized version
+// TC: O(2^n)
 func (s *ScratchCards) TotalScratchCards() int {
 	cardsQueue := s.cards
 	resultCards := []*Card{}
@@ -150,6 +152,37 @@ func (s *ScratchCards) TotalScratchCards() int {
 	}
 
 	return len(resultCards)
+}
+
+// DP Version
+// Optimizes the original algorithm by reversing the cards
+// and memoizing the results
+// TC: O(n^2)
+func (s *ScratchCards) TotalScratchCardsDP() int {
+	reversedCards := s.cards
+
+	// reverse cards
+	for i, j := 0, len(reversedCards)-1; i < j; i, j = i+1, j-1 {
+		reversedCards[i], reversedCards[j] = reversedCards[j], reversedCards[i]
+	}
+
+	total := 0
+	idToSumMap := map[int]int{}
+
+	for _, c := range reversedCards {
+		n := len(c.WinningNumbers())
+		cardId := c.id
+
+		currentSum := 1
+		for k := cardId + 1; k <= cardId+n; k++ {
+			currentSum += idToSumMap[k]
+		}
+
+		idToSumMap[cardId] = currentSum
+		total += currentSum
+	}
+
+	return total
 }
 
 func (s *ScratchCards) nextCards(c *Card) []*Card {

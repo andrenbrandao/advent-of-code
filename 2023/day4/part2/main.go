@@ -15,5 +15,5 @@ func main() {
 	}
 
 	scratchCards := cards.NewScratchCards(string(input))
-	fmt.Println(scratchCards.TotalScratchCards())
+	fmt.Println(scratchCards.TotalScratchCardsDP())
 }
