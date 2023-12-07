@@ -7,31 +7,19 @@ import (
 )
 
 type Map struct {
+	dataPoints  []string
 	internalMap map[int]int
 }
 
 func NewMap(lines []string) *Map {
-	aMap := Map{internalMap: make(map[int]int)}
-
-	for _, line := range lines {
-		if len(line) == 0 {
-			continue
-		}
-
-		fields := strings.Fields(line)
-		destination, _ := strconv.Atoi(fields[0])
-		source, _ := strconv.Atoi(fields[1])
-		aRange, _ := strconv.Atoi(fields[2])
-
-		for i := 0; i < aRange; i++ {
-			aMap.internalMap[source+i] = destination + i
-		}
-	}
+	aMap := Map{dataPoints: lines, internalMap: make(map[int]int)}
 
 	return &aMap
 }
 
 func (m *Map) From(src int) int {
+	m.calculateMap(src)
+
 	val, ok := m.internalMap[src]
 
 	if !ok {
@@ -39,6 +27,24 @@ func (m *Map) From(src int) int {
 	}
 
 	return val
+}
+
+func (m *Map) calculateMap(src int) {
+	for _, line := range m.dataPoints {
+		if len(line) == 0 {
+			continue
+		}
+
+		fields := strings.Fields(line)
+		dataDst, _ := strconv.Atoi(fields[0])
+		dataSrc, _ := strconv.Atoi(fields[1])
+		aRange, _ := strconv.Atoi(fields[2])
+
+		if src >= dataSrc && src <= dataSrc+aRange-1 {
+			transformationDiff := dataDst - dataSrc
+			m.internalMap[src] = src + transformationDiff
+		}
+	}
 }
 
 type Almanac struct {

@@ -27,8 +27,9 @@ func TestMap(t *testing.T) {
 		myMap := NewMap(strings.Split(input, "\n"))
 
 		for _, tt := range mapTests {
-			if myMap.From(tt.source) != tt.want {
-				t.Errorf("got %v want %v", tt.source, tt.want)
+			got := myMap.From(tt.source)
+			if got != tt.want {
+				t.Errorf("got %v want %v", got, tt.want)
 			}
 		}
 	})
