@@ -7,17 +7,52 @@ import (
 )
 
 type Map struct {
-	dataPoints  []string
 	internalMap map[int]int
 }
 
 func NewMap(lines []string) *Map {
-	aMap := Map{dataPoints: lines, internalMap: make(map[int]int)}
+	aMap := Map{internalMap: make(map[int]int)}
+
+	for _, line := range lines {
+		if len(line) == 0 {
+			continue
+		}
+
+		fields := strings.Fields(line)
+		destination, _ := strconv.Atoi(fields[0])
+		source, _ := strconv.Atoi(fields[1])
+		aRange, _ := strconv.Atoi(fields[2])
+
+		for i := 0; i < aRange; i++ {
+			aMap.internalMap[source+i] = destination + i
+		}
+	}
 
 	return &aMap
 }
 
 func (m *Map) From(src int) int {
+	val, ok := m.internalMap[src]
+
+	if !ok {
+		return src
+	}
+
+	return val
+}
+
+type OptimizedMap struct {
+	dataPoints  []string
+	internalMap map[int]int
+}
+
+func NewOptimizedMap(lines []string) *OptimizedMap {
+	aMap := OptimizedMap{dataPoints: lines, internalMap: make(map[int]int)}
+
+	return &aMap
+}
+
+func (m *OptimizedMap) From(src int) int {
 	m.calculateMap(src)
 
 	val, ok := m.internalMap[src]
@@ -29,7 +64,7 @@ func (m *Map) From(src int) int {
 	return val
 }
 
-func (m *Map) calculateMap(src int) {
+func (m *OptimizedMap) calculateMap(src int) {
 	for _, line := range m.dataPoints {
 		if len(line) == 0 {
 			continue
@@ -49,13 +84,13 @@ func (m *Map) calculateMap(src int) {
 
 type Almanac struct {
 	seeds []int
-	maps  []*Map
+	maps  []*OptimizedMap
 }
 
 func NewAlmanac(input string) *Almanac {
 	lines := strings.Split(input, "\n")
 	seeds := []int{}
-	maps := []*Map{}
+	maps := []*OptimizedMap{}
 
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
@@ -69,8 +104,8 @@ func NewAlmanac(input string) *Almanac {
 		}
 
 		if strings.Contains(line, "map:") {
-			var aMap *Map
-			i, aMap = extractMap(i+1, lines)
+			var aMap *OptimizedMap
+			i, aMap = extractOptimizedMap(i+1, lines)
 			maps = append(maps, aMap)
 		}
 	}
@@ -102,6 +137,17 @@ func extractMap(i int, lines []string) (int, *Map) {
 	}
 
 	m := NewMap(lines[top:bottom])
+	return bottom, m
+}
+
+func extractOptimizedMap(i int, lines []string) (int, *OptimizedMap) {
+	top := i
+	bottom := i
+	for len(lines[bottom]) > 0 {
+		bottom++
+	}
+
+	m := NewOptimizedMap(lines[top:bottom])
 	return bottom, m
 }
 
