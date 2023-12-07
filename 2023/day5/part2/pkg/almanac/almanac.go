@@ -1,18 +1,20 @@
 package almanac
 
 import (
+	"fmt"
 	"sort"
 	"strings"
 )
 
 type Almanac struct {
-	seeds []int
-	maps  []*OptimizedMap
+	seedsInput    string
+	maps          []*OptimizedMap
+	seedExtractor SeedExtractor
 }
 
 func NewAlmanac(input string, seedExtractor SeedExtractor) *Almanac {
 	lines := strings.Split(input, "\n")
-	seeds := []int{}
+	var seedRanges string
 	maps := []*OptimizedMap{}
 
 	for i := 0; i < len(lines); i++ {
@@ -23,7 +25,7 @@ func NewAlmanac(input string, seedExtractor SeedExtractor) *Almanac {
 		}
 
 		if strings.HasPrefix(line, "seeds:") {
-			seeds = seedExtractor.extract(line)
+			seedRanges = line
 		}
 
 		if strings.Contains(line, "map:") {
@@ -34,8 +36,9 @@ func NewAlmanac(input string, seedExtractor SeedExtractor) *Almanac {
 	}
 
 	return &Almanac{
-		seeds: seeds,
-		maps:  maps,
+		seedsInput:    seedRanges,
+		maps:          maps,
+		seedExtractor: seedExtractor,
 	}
 }
 
@@ -61,10 +64,14 @@ func extractOptimizedMap(i int, lines []string) (int, *OptimizedMap) {
 	return bottom, m
 }
 
+func (a *Almanac) Seeds() []int {
+	return a.seedExtractor.extract(a.seedsInput)
+}
+
 func (a *Almanac) Locations() []int {
 	locations := []int{}
 
-	for _, seed := range a.seeds {
+	for _, seed := range a.Seeds() {
 		dest := seed
 
 		for _, aMap := range a.maps {
@@ -84,4 +91,25 @@ func (a *Almanac) LowestLocation() int {
 	})
 
 	return locations[0]
+}
+
+func (a *Almanac) OptimizedLowestLocation() int {
+	reversedMaps := a.maps
+	for i, j := 0, len(reversedMaps)-1; i < j; i, j = i+1, j-1 {
+		reversedMaps[i], reversedMaps[j] = reversedMaps[j], reversedMaps[i]
+	}
+	seedSet := NewSeedSet(a.seedsInput)
+
+	for location := 0; location < 3530465412; location++ {
+		fmt.Println(location)
+		dest := location
+		for _, aMap := range reversedMaps {
+			dest = aMap.FromReverse(dest)
+		}
+		if seedSet.Has(dest) {
+			return location
+		}
+	}
+
+	return -1
 }
