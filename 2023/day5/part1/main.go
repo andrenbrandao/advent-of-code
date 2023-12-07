@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day5/pkg/almanac"
 	"fmt"
 	"log"
 	"os"
@@ -13,5 +14,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(input)
+	almanac := almanac.NewAlmanac(string(input))
+	fmt.Println(almanac.LowestLocation())
 }
