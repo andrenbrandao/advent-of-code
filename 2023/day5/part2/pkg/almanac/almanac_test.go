@@ -199,3 +199,19 @@ func TestInterval(t *testing.T) {
 		}
 	})
 }
+
+func TestIntervalMap(t *testing.T) {
+	t.Run("intersects a given interval with the current map and transform into the next", func(t *testing.T) {
+		// dest, src, range
+		input := "0 15 37"
+
+		intervalMap := NewIntervalMap(input)
+		interval := NewIntervalFromStartEnd(21, 41)
+		got := intervalMap.Transform(interval)
+		want := NewIntervalFromStartEnd(6, 26)
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+}
