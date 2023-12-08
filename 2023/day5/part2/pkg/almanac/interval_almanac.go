@@ -1,14 +1,42 @@
 package almanac
 
+import (
+	"strconv"
+	"strings"
+)
+
+type Interval struct {
+	start int
+	end   int
+}
+
+func NewInterval(input string) *Interval {
+	fields := strings.Fields(input)
+	start, _ := strconv.Atoi(fields[0])
+	aRange, _ := strconv.Atoi(fields[1])
+	end := start + aRange - 1
+
+	return &Interval{
+		start: start,
+		end:   end,
+	}
+}
+
+func (i *Interval) Start() int {
+	return i.start
+}
+
+func (i *Interval) End() int {
+	return i.end
+}
+
 // type IntervalAlmanac struct {
-// 	seedsInput string
-// 	maps       []
+// 	seedsInteval []*Interval
 // }
 
 // func NewIntervalAlmanac(input string) *IntervalAlmanac {
 // 	lines := strings.Split(input, "\n")
-// 	var seedsInput string
-// 	maps := []*OptimizedMap{}
+// 	var seedsInterval []*Interval
 
 // 	for i := 0; i < len(lines); i++ {
 // 		line := lines[i]
@@ -18,13 +46,7 @@ package almanac
 // 		}
 
 // 		if strings.HasPrefix(line, "seeds:") {
-// 			seedsInput = line
-// 		}
-
-// 		if strings.Contains(line, "map:") {
-// 			var aMap *OptimizedMap
-// 			i, aMap = extractOptimizedMap(i+1, lines)
-// 			maps = append(maps, aMap)
+// 			seedsInterval = extractSeedIntervals(line)
 // 		}
 // 	}
 

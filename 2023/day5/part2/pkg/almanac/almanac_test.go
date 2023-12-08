@@ -185,3 +185,17 @@ humidity-to-location map:
 		}
 	})
 }
+
+func TestInterval(t *testing.T) {
+	t.Run("create an interval from a given start and range string", func(t *testing.T) {
+		input := "10 37"
+
+		interval := NewInterval(input)
+		got := []int{interval.Start(), interval.End()}
+		want := []int{10, 46}
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+}
