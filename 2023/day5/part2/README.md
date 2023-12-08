@@ -48,16 +48,23 @@ To iterate over the locations, we can use the keys of the map.
 
 ## Thinking Again
 
-  locations
+Thinking in reverse looked better, but is still pretty slow. How can we optimize it?
+
+We have different ranges (intervals) of locations, humidity, etc. and we want to find
+the overlap between all of them.
+
+**So, instead of a graph problem, this becomes an interval problem!**
+
+  seeds
 |--------------|
-       humidity
+       soils
      |-----------------|
-     temperature
+     fertilizers
   |-------------|
     ......
 
-     seeds
+     locations
 |-----------|
 
-  locations to seed intersection
+    seeds to locations intersection
      |------|
