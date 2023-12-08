@@ -2,6 +2,7 @@ package almanac
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -193,27 +194,109 @@ func NewSeedIntervalMap(input string) *IntervalMap {
 }
 
 type IntervalAlmanac struct {
-	seedsInteval []*Interval
+	intervalMapGroups [][]*IntervalMap
 }
 
-// func NewIntervalAlmanac(input string) *IntervalAlmanac {
-// 	lines := strings.Split(input, "\n")
-// 	var seedsInterval []*Interval
+func NewIntervalAlmanac(input string) *IntervalAlmanac {
+	lines := strings.Split(input, "\n")
+	intervalMapGroups := make([][]*IntervalMap, 0)
 
-// 	for i := 0; i < len(lines); i++ {
-// 		line := lines[i]
+	for i := 0; i < len(lines); i++ {
+		line := lines[i]
 
-// 		if len(line) == 0 {
-// 			continue
-// 		}
+		if len(line) == 0 {
+			continue
+		}
 
-// 		if strings.HasPrefix(line, "seeds:") {
-// 			seedsInterval = extractSeedIntervals(line)
-// 		}
-// 	}
+		if strings.HasPrefix(line, "seeds:") {
+			// fmt.Println("executed seeds")
+			aMapGroup := extractSeedIntervalMaps(line)
+			intervalMapGroups = append(intervalMapGroups, aMapGroup)
+		}
 
-// 	return &IntervalAlmanac{
-// 		seedsInput: seedsInput,
-// 		maps:       maps,
-// 	}
-// }
+		if strings.Contains(line, "map:") {
+			var aMapGroup []*IntervalMap
+			i, aMapGroup = extractIntervalMapGroup(i+1, lines)
+			intervalMapGroups = append(intervalMapGroups, aMapGroup)
+		}
+	}
+
+	// for _, group := range intervalMapGroups {
+	// 	for _, interval := range group {
+	// 		fmt.Println("line")
+	// 		printIntervals([]*Interval{interval.interval})
+	// 	}
+	// }
+
+	return &IntervalAlmanac{intervalMapGroups}
+}
+
+func extractSeedIntervalMaps(line string) []*IntervalMap {
+	s := strings.Split(line, ":")
+	fields := strings.Fields(s[1])
+	intervalMaps := []*IntervalMap{}
+
+	for i := 0; i < len(fields); i += 2 {
+		aMap := NewSeedIntervalMap(fmt.Sprintf("%s %s", fields[i], fields[i+1]))
+		// printIntervals([]*Interval{aMap.interval})
+		intervalMaps = append(intervalMaps, aMap)
+	}
+
+	return intervalMaps
+}
+
+func extractIntervalMapGroup(pos int, lines []string) (int, []*IntervalMap) {
+	intervalMapGroup := []*IntervalMap{}
+
+	for len(lines[pos]) > 0 {
+		aMap := NewIntervalMap(lines[pos])
+		// printIntervals([]*Interval{aMap.interval})
+		intervalMapGroup = append(intervalMapGroup, aMap)
+		pos++
+	}
+
+	return pos, intervalMapGroup
+}
+
+func (a *IntervalAlmanac) Locations() []*Interval {
+	intervals := []*Interval{}
+
+	for _, intervalMap := range a.intervalMapGroups[0] {
+		intervals = append(intervals, intervalMap.interval)
+	}
+	// printIntervals(intervals)
+
+	for i := 1; i <= 1; i++ {
+		mapGroupB := a.intervalMapGroups[i]
+
+		currentIntervals := []*Interval{}
+		for _, intervalMapB := range mapGroupB {
+			for _, interval := range intervals {
+				for _, mappedInterval := range intervalMapB.Transform(interval) {
+					currentIntervals = append(currentIntervals, mappedInterval)
+				}
+			}
+		}
+
+		intervals = currentIntervals
+	}
+
+	return intervals
+}
+
+func (a *IntervalAlmanac) LowestLocation() int {
+	locations := a.Locations()
+
+	sort.Slice(locations, func(i, j int) bool {
+		return locations[i].Start() < locations[j].Start()
+	})
+
+	printIntervals(locations)
+	return locations[0].Start()
+}
+
+func printIntervals(intervals []*Interval) {
+	for _, interval := range intervals {
+		fmt.Println(interval.Start(), interval.End())
+	}
+}
