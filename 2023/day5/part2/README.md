@@ -110,3 +110,28 @@ Executing it:
 - Add the interval to our list of location intervals
 - Sort the location intervals
 - Get the start of the first interval
+
+**EDGE CASES**
+
+I had forgotten that if the map does not have that range, the source
+maps to the destination of the same value.
+
+>Any source numbers that aren't mapped correspond to the same destination number. So, seed number 10 corresponds to soil number 10.
+
+This means that a seed always maps to a location. If there are no maps for that seed, it maps to the same number.
+
+IntervalMap will need to return an array of Intervals because the intersection might create
+different intervals. Ones that pass through the map and others that are mapped to the same value.
+
+     seeds
+0              100    200           300
+|---------------|     |--------------|
+
+                    seed-to-soil-map
+0  9 10                   130 seeds
+|--| |--------------------|
+
+0  9 50                    170 soils
+|--| |---------------------|
+
+0-9 is mapped to itself because that entry is not in the map.
