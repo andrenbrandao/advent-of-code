@@ -16,19 +16,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// part1(input)
-	part2(input)
+	part1(input)
+	// part2_suboptimal(input)
 
 	elapsed := time.Since(start)
 	log.Printf("Took %s", elapsed)
 }
 
 func part1(input []byte) {
-	almanac := almanac.NewAlmanac(string(input), &almanac.DefaultSeedExtractor{})
+	almanac := almanac.NewGraphAlmanac(string(input), &almanac.DefaultSeedExtractor{})
 	fmt.Println(almanac.LowestLocation())
 }
 
-func part2(input []byte) {
-	almanac := almanac.NewAlmanac(string(input), &almanac.RangeSeedExtractor{})
+func part2_suboptimal(input []byte) {
+	almanac := almanac.NewGraphAlmanac(string(input), &almanac.RangeSeedExtractor{})
 	fmt.Println(almanac.OptimizedLowestLocation())
 }

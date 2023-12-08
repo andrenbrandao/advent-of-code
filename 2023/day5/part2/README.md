@@ -68,3 +68,45 @@ the overlap between all of them.
 
     seeds to locations intersection
      |------|
+
+### Interval Algorithm
+
+     seeds
+0              100    200           300
+|---------------|     |--------------|
+
+                    seed-to-soil-map
+    10                   130 seeds      150          170 seeds
+    |--------------------|               |------------|
+
+    50                    170 soils     180           200 soils
+    |---------------------|              |------------|
+
+
+
+                    another-map
+    30                   110           140          160
+    |--------------------|               |------------|
+
+    40                    120           160           180
+    |---------------------|              |------------|
+
+Creating the IntervalAmanac structure:
+
+- Create the array of seed intervals (start, start+range)
+- Sort the array of intervals by their start position
+- Create each map:
+  - Create intervals for each source
+  - Sort the interval
+  - Create a function that transform one interval into the next
+
+Executing it:
+
+- Iterate over each interval seed
+- Compare it with each of the next map intervals
+- Get their intersection
+- Apply the function
+- Repeat the same until we reach a final intersection interval
+- Add the interval to our list of location intervals
+- Sort the location intervals
+- Get the start of the first interval
