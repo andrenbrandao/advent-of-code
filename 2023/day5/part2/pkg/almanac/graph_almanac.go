@@ -72,12 +72,15 @@ func (a *GraphAlmanac) LowestLocation() int {
 	return locations[0]
 }
 
+// Really slow
+// Tries to traverse the graph in reverse from the lowest location
+// but the numbers are really big, so this may take hours/days
 func (a *GraphAlmanac) OptimizedLowestLocation() int {
 	reversedMaps := a.maps
 	for i, j := 0, len(reversedMaps)-1; i < j; i, j = i+1, j-1 {
 		reversedMaps[i], reversedMaps[j] = reversedMaps[j], reversedMaps[i]
 	}
-	seedSet := NewSeedSet(a.seedsInput)
+	seedSet := seeds.NewSeedSet(a.seedsInput)
 
 	for location := 0; location < 3530465412; location++ {
 		dest := location
