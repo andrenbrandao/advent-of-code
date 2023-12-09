@@ -198,6 +198,59 @@ func TestInterval(t *testing.T) {
 			t.Errorf("got %v want %v", got, want)
 		}
 	})
+
+	t.Run("joins with another interval", func(t *testing.T) {
+		interval1 := NewIntervalFromStartEnd(10, 37)
+		interval2 := NewIntervalFromStartEnd(38, 50)
+		got := interval1.Join(interval2)
+		want := NewIntervalFromStartEnd(10, 50)
+
+		if !reflect.DeepEqual(got, want) {
+			t.Errorf("got %v want %v", got, want)
+		}
+	})
+
+	t.Run("subtract two intervals", func(t *testing.T) {
+		intervalTests := []struct {
+			interval1 *Interval
+			interval2 *Interval
+			want      *Interval
+		}{
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(35, 40), NewIntervalFromStartEnd(10, 34)},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(38, 40), NewIntervalFromStartEnd(10, 37)},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(0, 12), NewIntervalFromStartEnd(13, 37)},
+		}
+
+		for _, tt := range intervalTests {
+			got := tt.interval1.Minus(tt.interval2)
+			want := tt.want
+
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("got %v want %v", got, want)
+			}
+		}
+	})
+
+	t.Run("intersects two intervals", func(t *testing.T) {
+		intervalTests := []struct {
+			interval1 *Interval
+			interval2 *Interval
+			want      *Interval
+		}{
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(35, 40), NewIntervalFromStartEnd(35, 37)},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(38, 40), NewIntervalFromStartEnd(38, 37)},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(0, 12), NewIntervalFromStartEnd(10, 12)},
+		}
+
+		for _, tt := range intervalTests {
+			got := tt.interval1.Intersection(tt.interval2)
+			want := tt.want
+
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("got %v want %v", got, want)
+			}
+		}
+	})
 }
 
 func TestIntervalMap(t *testing.T) {
@@ -214,7 +267,7 @@ func TestIntervalMap(t *testing.T) {
 		}
 
 		for _, tt := range intervalTests {
-			intervalMap := NewIntervalMap(tt.mapInput)
+			intervalMap := NewIntervalMap(strings.Split(tt.mapInput, "\n"))
 			interval := NewIntervalFromStartEnd(tt.sourceIntervalStartEnd[0], tt.sourceIntervalStartEnd[1])
 			got := intervalMap.Transform(interval)
 
@@ -230,21 +283,34 @@ func TestIntervalMap(t *testing.T) {
 		}
 
 	})
-}
 
-func TestSeedIntervalMap(t *testing.T) {
-	t.Run("creates an interval map that transform it in itself", func(t *testing.T) {
-		// start, range
-		input := "79 14"
-
-		intervalMap := NewSeedIntervalMap(input)
-		interval := NewIntervalFromStartEnd(79, 92)
-		got := intervalMap.Transform(interval)
-		want := []*Interval{interval}
-
-		if !reflect.DeepEqual(got, want) {
-			t.Errorf("got %v want %v", got, want)
+	t.Run("tries to match with the multiple intervals inside a map", func(t *testing.T) {
+		intervalTests := []struct {
+			mapInput               string
+			sourceIntervalStartEnd []int
+			destStartEnd           [][]int
+		}{
+			// dest, src, range
+			{`0 15 37
+			37 52 2`, []int{15, 53}, [][]int{[]int{0, 38}}},
 		}
+
+		for _, tt := range intervalTests {
+			intervalMap := NewIntervalMap(strings.Split(tt.mapInput, "\n"))
+			interval := NewIntervalFromStartEnd(tt.sourceIntervalStartEnd[0], tt.sourceIntervalStartEnd[1])
+			got := intervalMap.Transform(interval)
+
+			var want []*Interval
+			for _, intervalRange := range tt.destStartEnd {
+				destInterval := NewIntervalFromStartEnd(intervalRange[0], intervalRange[1])
+				want = append(want, destInterval)
+			}
+
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("got %v want %v", got, want)
+			}
+		}
+
 	})
 }
 

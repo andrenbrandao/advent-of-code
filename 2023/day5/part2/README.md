@@ -135,3 +135,8 @@ different intervals. Ones that pass through the map and others that are mapped t
 |--| |---------------------|
 
 0-9 is mapped to itself because that entry is not in the map.
+
+**A MAP IS A CONTINUOUS RANGE**
+
+Just noticed that a map is a continuous range. So I can change my IntervalMap implementation
+to instead of creating multiples of them, just having a big one interval with a map function.

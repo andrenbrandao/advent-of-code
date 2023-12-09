@@ -44,21 +44,76 @@ func (i *Interval) End() int {
 	return i.end
 }
 
+func (i *Interval) Join(other *Interval) *Interval {
+	newStart := min(i.start, other.start)
+	newEnd := max(i.end, other.end)
+	return NewIntervalFromStartEnd(newStart, newEnd)
+}
+
+func (i *Interval) Minus(other *Interval) *Interval {
+	intersection := i.Intersection(other)
+
+	// to the left
+	if i.start < intersection.start {
+		return NewIntervalFromStartEnd(i.start, intersection.start-1)
+	}
+
+	// to the right
+	return NewIntervalFromStartEnd(intersection.end+1, i.end)
+}
+
+func (i *Interval) Intersection(other *Interval) *Interval {
+	startA := i.Start()
+	endA := i.End()
+	startB := other.Start()
+	endB := other.End()
+
+	if startA > startB {
+		startA, startB = startB, startA
+		endA, endB = endB, endA
+	}
+
+	startIntersect := max(startA, startB)
+	endIntersect := min(endA, endB)
+
+	return NewIntervalFromStartEnd(startIntersect, endIntersect)
+}
+
 type IntervalMap struct {
 	interval    *Interval
 	internalMap *OptimizedMap
 }
 
-func NewIntervalMap(input string) *IntervalMap {
-	fields := strings.Fields(input)
-	dataSrc, _ := strconv.Atoi(fields[1])
-	aRange, _ := strconv.Atoi(fields[2])
+func NewIntervalMap(lines []string) *IntervalMap {
+	intervals := []*Interval{}
 
-	interval := NewIntervalFromRange(dataSrc, aRange)
-	aMap := NewOptimizedMap([]string{input})
+	for _, line := range lines {
+		if len(line) == 0 {
+			continue
+		}
+
+		fields := strings.Fields(line)
+		dataSrc, _ := strconv.Atoi(fields[1])
+		aRange, _ := strconv.Atoi(fields[2])
+
+		interval := NewIntervalFromRange(dataSrc, aRange)
+		intervals = append(intervals, interval)
+	}
+
+	sort.Slice(intervals, func(i, j int) bool {
+		return intervals[i].Start() < intervals[j].Start()
+	})
+
+	joinedInterval := intervals[0]
+
+	for i := 1; i < len(intervals); i++ {
+		joinedInterval = joinedInterval.Join(intervals[i])
+	}
+
+	aMap := NewOptimizedMap(lines)
 
 	return &IntervalMap{
-		interval:    interval,
+		interval:    joinedInterval,
 		internalMap: aMap,
 	}
 }
@@ -76,7 +131,9 @@ case 2
 
 
 so, first we need to sort it to eliminate multiple cases
-
+** Sorting won´t solve everything **
+** It will actually confuse what is the source and the filter **
+** Sorting makes it easier to get the intersection **
 
 case 1 -> creates 1 interval
 |-----|
@@ -97,6 +154,16 @@ case 4
 case 5
 |-----| -> creates 2 intervals
   |---|
+
+case 6 -> returns the same interval
+      |----|
+|---|
+
+case 7 -> return the intersection and the right side
+
+  |----|
+|---|
+
 
 startIntersect = max(startA, startB)
 endIntersect = min(endA, endB)
@@ -119,6 +186,9 @@ case 3:
 
 case 4:
 	if intersection is the same as A, return A
+
+case 7:
+
 */
 
 func (im *IntervalMap) Transform(srcInterval *Interval) []*Interval {
@@ -130,17 +200,26 @@ func (im *IntervalMap) Transform(srcInterval *Interval) []*Interval {
 	startB := intervalB.Start()
 	endB := intervalB.End()
 
+	fmt.Println("Interval A: ", startA, endA)
+	fmt.Println("Interval B: ", startB, endB)
+
 	// sort them
 	if startA > startB {
+		fmt.Println("swapped")
 		intervalA, intervalB = intervalB, intervalA
+		startA, startB = startB, startA
+		endA, endB = endB, endA
 	}
 
 	startIntersect := max(startA, startB)
 	endIntersect := min(endA, endB)
 
+	fmt.Println("Intersect: ", startIntersect, endIntersect)
+
 	// non-overlapping
 	// no need to create others
 	if startIntersect > endIntersect {
+		fmt.Println("Non-overlapping")
 		newStart := im.internalMap.From(srcInterval.Start())
 		newEnd := im.internalMap.From(srcInterval.End())
 
@@ -149,8 +228,12 @@ func (im *IntervalMap) Transform(srcInterval *Interval) []*Interval {
 		return []*Interval{newInterval}
 	}
 
-	// the intersection is the same, map only the original interval
-	if startA == startIntersect && endA == endIntersect {
+	startA = srcInterval.start
+	endA = srcInterval.end
+
+	// we mapped to inside the intersection
+	// return the intersection mapped to the new values
+	if startA >= startIntersect && endA <= endIntersect {
 		newStart := im.internalMap.From(srcInterval.Start())
 		newEnd := im.internalMap.From(srcInterval.End())
 
@@ -161,45 +244,25 @@ func (im *IntervalMap) Transform(srcInterval *Interval) []*Interval {
 
 	// has an intersection
 	// split into intervals
-	newStartA := startA
-	newEndA := min(endA, startIntersect-1)
-
-	newStartB := max(startB, endIntersect+1)
-	newEndB := max(endB, endA)
-
-	newA := NewIntervalFromStartEnd(newStartA, newEndA)
-	newB := NewIntervalFromStartEnd(newStartB, newEndB)
-
+	// B should not be part of the new intervals
+	intersection := NewIntervalFromStartEnd(startIntersect, endIntersect)
+	newA := srcInterval.Minus(intersection)
 	startIntersect = im.internalMap.From(startIntersect)
 	endIntersect = im.internalMap.From(endIntersect)
-	intersection := NewIntervalFromStartEnd(startIntersect, endIntersect)
+	mappedIntersection := NewIntervalFromStartEnd(startIntersect, endIntersect)
 
-	return []*Interval{newA, intersection, newB}
-}
-
-func NewSeedIntervalMap(input string) *IntervalMap {
-	fields := strings.Fields(input)
-	dataSrc, _ := strconv.Atoi(fields[0])
-	aRange, _ := strconv.Atoi(fields[1])
-	dataDst := dataSrc
-	mapInput := fmt.Sprintf("%d %d %d", dataDst, dataSrc, aRange)
-
-	interval := NewIntervalFromRange(dataSrc, aRange)
-	aMap := NewOptimizedMap([]string{mapInput})
-
-	return &IntervalMap{
-		interval:    interval,
-		internalMap: aMap,
-	}
+	return []*Interval{newA, mappedIntersection}
 }
 
 type IntervalAlmanac struct {
-	intervalMapGroups [][]*IntervalMap
+	seedIntervals []*Interval
+	intervalMaps  []*IntervalMap
 }
 
 func NewIntervalAlmanac(input string) *IntervalAlmanac {
 	lines := strings.Split(input, "\n")
-	intervalMapGroups := make([][]*IntervalMap, 0)
+	intervalMaps := make([]*IntervalMap, 0)
+	seedIntervals := []*Interval{}
 
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
@@ -209,75 +272,68 @@ func NewIntervalAlmanac(input string) *IntervalAlmanac {
 		}
 
 		if strings.HasPrefix(line, "seeds:") {
-			// fmt.Println("executed seeds")
-			aMapGroup := extractSeedIntervalMaps(line)
-			intervalMapGroups = append(intervalMapGroups, aMapGroup)
+			seedIntervals = extractSeedIntervals(line)
 		}
 
 		if strings.Contains(line, "map:") {
-			var aMapGroup []*IntervalMap
-			i, aMapGroup = extractIntervalMapGroup(i+1, lines)
-			intervalMapGroups = append(intervalMapGroups, aMapGroup)
+			var aMap *IntervalMap
+			i, aMap = extractIntervalMap(i+1, lines)
+			intervalMaps = append(intervalMaps, aMap)
 		}
 	}
 
-	// for _, group := range intervalMapGroups {
-	// 	for _, interval := range group {
-	// 		fmt.Println("line")
-	// 		printIntervals([]*Interval{interval.interval})
-	// 	}
-	// }
-
-	return &IntervalAlmanac{intervalMapGroups}
+	return &IntervalAlmanac{
+		seedIntervals: seedIntervals,
+		intervalMaps:  intervalMaps,
+	}
 }
 
-func extractSeedIntervalMaps(line string) []*IntervalMap {
+func extractSeedIntervals(line string) []*Interval {
 	s := strings.Split(line, ":")
 	fields := strings.Fields(s[1])
-	intervalMaps := []*IntervalMap{}
+	intervals := []*Interval{}
 
 	for i := 0; i < len(fields); i += 2 {
-		aMap := NewSeedIntervalMap(fmt.Sprintf("%s %s", fields[i], fields[i+1]))
-		// printIntervals([]*Interval{aMap.interval})
-		intervalMaps = append(intervalMaps, aMap)
+		start, _ := strconv.Atoi(fields[i])
+		aRange, _ := strconv.Atoi(fields[i+1])
+		newInterval := NewIntervalFromRange(start, aRange)
+		intervals = append(intervals, newInterval)
 	}
 
-	return intervalMaps
+	return intervals
 }
 
-func extractIntervalMapGroup(pos int, lines []string) (int, []*IntervalMap) {
-	intervalMapGroup := []*IntervalMap{}
+func extractIntervalMap(i int, lines []string) (int, *IntervalMap) {
+	top := i
+	bottom := i
 
-	for len(lines[pos]) > 0 {
-		aMap := NewIntervalMap(lines[pos])
-		// printIntervals([]*Interval{aMap.interval})
-		intervalMapGroup = append(intervalMapGroup, aMap)
-		pos++
+	for len(lines[bottom]) > 0 {
+		bottom++
 	}
 
-	return pos, intervalMapGroup
+	aMap := NewIntervalMap(lines[top:bottom])
+
+	return bottom, aMap
 }
 
 func (a *IntervalAlmanac) Locations() []*Interval {
-	intervals := []*Interval{}
+	intervals := a.seedIntervals
 
-	for _, intervalMap := range a.intervalMapGroups[0] {
-		intervals = append(intervals, intervalMap.interval)
-	}
-	// printIntervals(intervals)
+	printIntervals(a.seedIntervals)
 
-	for i := 1; i <= 1; i++ {
-		mapGroupB := a.intervalMapGroups[i]
+	for i := 0; i < 5; i++ {
+		aMap := a.intervalMaps[i]
 
+		fmt.Println()
 		currentIntervals := []*Interval{}
-		for _, intervalMapB := range mapGroupB {
-			for _, interval := range intervals {
-				for _, mappedInterval := range intervalMapB.Transform(interval) {
-					currentIntervals = append(currentIntervals, mappedInterval)
-				}
+		for _, interval := range intervals {
+			for _, mappedInterval := range aMap.Transform(interval) {
+				fmt.Println(mappedInterval)
+				currentIntervals = append(currentIntervals, mappedInterval)
 			}
 		}
 
+		printIntervals(currentIntervals)
 		intervals = currentIntervals
 	}
 
@@ -291,12 +347,14 @@ func (a *IntervalAlmanac) LowestLocation() int {
 		return locations[i].Start() < locations[j].Start()
 	})
 
-	printIntervals(locations)
+	// printIntervals(locations)
 	return locations[0].Start()
 }
 
 func printIntervals(intervals []*Interval) {
+	fmt.Printf("Current Intervals: ")
+
 	for _, interval := range intervals {
-		fmt.Println(interval.Start(), interval.End())
+		fmt.Printf("%d %d\n", interval.Start(), interval.End())
 	}
 }
