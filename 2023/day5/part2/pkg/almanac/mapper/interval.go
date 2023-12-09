@@ -43,32 +43,9 @@ func NewIntervalMap(lines []string) *IntervalMap {
 // Transform create multiple intersections by doing srcInterval Minus the mapIntervals
 // mapping those values to the new map and returning them
 func (im *IntervalMap) Transform(srcInterval *intvl.Interval) []*intvl.Interval {
-	intersections := []*intvl.Interval{}
-	mappedIntersections := []*intvl.Interval{}
-
-	for _, interval := range im.intervals {
-		intersection := srcInterval.Intersection(interval)
-		if intersection == nil {
-			continue
-		}
-		intersections = append(intersections, intersection)
-
-		newStart := im.internalMap.Transform(intersection.Start())
-		newEnd := im.internalMap.Transform(intersection.End())
-
-		mappedIntersections = append(mappedIntersections, intvl.NewIntervalFromStartEnd(newStart, newEnd))
-	}
-
-	notMappedIntervals := []*intvl.Interval{srcInterval}
-	for _, i := range intersections {
-		current := []*intvl.Interval{}
-
-		for _, notMapped := range notMappedIntervals {
-			current = append(current, notMapped.Minus(i)...)
-		}
-
-		notMappedIntervals = current
-	}
+	intersections := im.extractIntersections(srcInterval)
+	mappedIntersections := im.mapIntersections(intersections)
+	notMappedIntervals := im.extractNotMappedIntervals(srcInterval, intersections)
 
 	mappedIntervals := []*intvl.Interval{}
 	mappedIntervals = append(mappedIntervals, mappedIntersections...)
@@ -79,4 +56,49 @@ func (im *IntervalMap) Transform(srcInterval *intvl.Interval) []*intvl.Interval 
 	})
 
 	return mappedIntervals
+}
+
+func (*IntervalMap) extractNotMappedIntervals(srcInterval *intvl.Interval, intersections []*intvl.Interval) []*intvl.Interval {
+	notMappedIntervals := []*intvl.Interval{srcInterval}
+
+	for _, i := range intersections {
+		current := []*intvl.Interval{}
+
+		for _, notMapped := range notMappedIntervals {
+			current = append(current, notMapped.Minus(i)...)
+		}
+
+		notMappedIntervals = current
+	}
+
+	return notMappedIntervals
+}
+
+func (im *IntervalMap) extractIntersections(srcInterval *intvl.Interval) []*intvl.Interval {
+	intersections := []*intvl.Interval{}
+
+	for _, interval := range im.intervals {
+		intersection := srcInterval.Intersection(interval)
+
+		if intersection == nil {
+			continue
+		}
+
+		intersections = append(intersections, intersection)
+	}
+
+	return intersections
+}
+
+func (im *IntervalMap) mapIntersections(intersections []*intvl.Interval) []*intvl.Interval {
+	mappedIntersections := []*intvl.Interval{}
+
+	for _, intersection := range intersections {
+		newStart := im.internalMap.Transform(intersection.Start())
+		newEnd := im.internalMap.Transform(intersection.End())
+
+		mappedIntersections = append(mappedIntersections, intvl.NewIntervalFromStartEnd(newStart, newEnd))
+	}
+
+	return mappedIntersections
 }
