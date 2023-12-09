@@ -30,7 +30,7 @@ func NewMap(lines []string) *Map {
 	return &aMap
 }
 
-func (m *Map) From(src int) int {
+func (m *Map) Transform(src int) int {
 	val, ok := m.internalMap[src]
 
 	if !ok {
