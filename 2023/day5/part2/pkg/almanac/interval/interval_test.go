@@ -58,9 +58,11 @@ func TestInterval(t *testing.T) {
 			interval2 *Interval
 			want      *Interval
 		}{
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(35, 40), NewIntervalFromStartEnd(35, 37)},
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(38, 40), nil},
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(0, 12), NewIntervalFromStartEnd(10, 12)},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(35, 40), NewIntervalFromStartEnd(35, 37)}, // overlap
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(0, 12), NewIntervalFromStartEnd(10, 12)},  // overlap
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(37, 38), NewIntervalFromStartEnd(37, 37)}, // overlap at a point
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(10, 37)}, // equal
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(38, 40), nil},                             // do not overlap
 		}
 
 		for _, tt := range intervalTests {

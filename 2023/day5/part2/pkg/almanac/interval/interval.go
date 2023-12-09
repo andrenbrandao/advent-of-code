@@ -82,14 +82,10 @@ func (i *Interval) Intersection(other *Interval) *Interval {
 	startB := other.Start()
 	endB := other.End()
 
-	if startA > startB {
-		startA, startB = startB, startA
-		endA, endB = endB, endA
-	}
-
 	startIntersect := max(startA, startB)
 	endIntersect := min(endA, endB)
 
+	// do not intersect
 	if startIntersect > endIntersect {
 		return nil
 	}
