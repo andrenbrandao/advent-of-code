@@ -8,9 +8,8 @@ import (
 )
 
 type IntervalMap struct {
-	joinedInterval *intvl.Interval
-	intervals      []*intvl.Interval
-	internalMap    *OptimizedMap
+	intervals   []*intvl.Interval
+	internalMap *OptimizedMap
 }
 
 func NewIntervalMap(lines []string) *IntervalMap {
@@ -33,110 +32,47 @@ func NewIntervalMap(lines []string) *IntervalMap {
 		return intervals[i].Start() < intervals[j].Start()
 	})
 
-	joinedInterval := intervals[0]
-
-	for i := 1; i < len(intervals); i++ {
-		joinedInterval = joinedInterval.Join(intervals[i])
-	}
-
 	aMap := NewOptimizedMap(lines)
 
 	return &IntervalMap{
-		joinedInterval: joinedInterval,
-		intervals:      intervals,
-		internalMap:    aMap,
+		intervals:   intervals,
+		internalMap: aMap,
 	}
 }
 
-/*
-
-case 1
-|-----|
-        |------|
-
-
-case 2
-          |-----|
-|-----|
-
-
-so, first we need to sort it to eliminate multiple cases
-** Sorting won´t solve everything **
-** It will actually confuse what is the source and the filter **
-** Sorting makes it easier to get the intersection **
-
-case 1 -> creates 1 interval
-|-----|
-        |------|
-
-case 2 -> creates 3 intervals
-|-----|
-    |------|
-
-case 3
-|------| -> creates 3 intervals
-  |--|
-
-case 4
-|-----| -> creates 1 interval
-|-----|
-
-case 5
-|-----| -> creates 2 intervals
-  |---|
-
-case 6 -> returns the same interval
-      |----|
-|---|
-
-case 7 -> return the intersection and the right side
-
-  |----|
-|---|
-
-
-startIntersect = max(startA, startB)
-endIntersect = min(endA, endB)
-
-if startIntersect > endIntersect: {
-	NOT VALID, just return the mapping to the same values
-}
-
-OTHERWISE:
-
-newStartA = startA
-newEndA = min(endA, startIntersect-1)
-
-newStartB = max(startB, endIntersect+1)
-newEndB = max(endB, endA)
-
-
-case 3:
-	returns the newA, intersection and newB
-
-case 4:
-	if intersection is the same as A, return A
-
-case 7:
-
-*/
-
+// Transform create multiple intersections by doing srcInterval Minus the mapIntervals
+// mapping those values to the new map and returning them
 func (im *IntervalMap) Transform(srcInterval *intvl.Interval) []*intvl.Interval {
-	// create multiple intersections by doing Minus the intervals
-	// map those values to the new map
-	// return them
-	mappedIntervals := []*intvl.Interval{}
+	intersections := []*intvl.Interval{}
+	mappedIntersections := []*intvl.Interval{}
+
 	for _, interval := range im.intervals {
 		intersection := srcInterval.Intersection(interval)
-		if intersection != nil {
-			newStart := im.internalMap.Transform(intersection.Start())
-
-			newEnd := im.internalMap.Transform(intersection.End())
-			mappedIntervals = append(mappedIntervals, intvl.NewIntervalFromStartEnd(newStart, newEnd))
+		if intersection == nil {
+			continue
 		}
+		intersections = append(intersections, intersection)
+
+		newStart := im.internalMap.Transform(intersection.Start())
+		newEnd := im.internalMap.Transform(intersection.End())
+
+		mappedIntersections = append(mappedIntersections, intvl.NewIntervalFromStartEnd(newStart, newEnd))
 	}
 
-	mappedIntervals = append(mappedIntervals, srcInterval.Minus(im.joinedInterval)...)
+	notMappedIntervals := []*intvl.Interval{srcInterval}
+	for _, i := range intersections {
+		current := []*intvl.Interval{}
+
+		for _, notMapped := range notMappedIntervals {
+			current = append(current, notMapped.Minus(i)...)
+		}
+
+		notMappedIntervals = current
+	}
+
+	mappedIntervals := []*intvl.Interval{}
+	mappedIntervals = append(mappedIntervals, mappedIntersections...)
+	mappedIntervals = append(mappedIntervals, notMappedIntervals...)
 
 	sort.Slice(mappedIntervals, func(i, j int) bool {
 		return mappedIntervals[i].Start() < mappedIntervals[j].Start()

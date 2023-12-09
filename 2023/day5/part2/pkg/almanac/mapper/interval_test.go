@@ -46,7 +46,9 @@ func TestIntervalMap(t *testing.T) {
 		}{
 			// dest, src, range
 			{`0 15 37
-			37 52 2`, []int{15, 53}, [][]int{[]int{0, 36}, []int{37, 38}}},
+			37 52 2`, []int{15, 53}, [][]int{[]int{0, 36}, []int{37, 38}}}, // contiguous interval
+			{`0 15 37
+			37 54 2`, []int{15, 55}, [][]int{[]int{0, 36}, []int{37, 38}, []int{52, 53}}}, // non-contiguous
 		}
 
 		for _, tt := range intervalTests {
