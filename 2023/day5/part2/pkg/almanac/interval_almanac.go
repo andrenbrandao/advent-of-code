@@ -50,16 +50,32 @@ func (i *Interval) Join(other *Interval) *Interval {
 	return NewIntervalFromStartEnd(newStart, newEnd)
 }
 
-func (i *Interval) Minus(other *Interval) *Interval {
+func (i *Interval) Minus(other *Interval) []*Interval {
 	intersection := i.Intersection(other)
+
+	if intersection == nil {
+		return []*Interval{i}
+	}
+
+	// intersection is inside or equal
+	if i.start < intersection.start && i.end > intersection.end {
+		intervalA := NewIntervalFromStartEnd(i.start, intersection.start-1)
+		intervalB := NewIntervalFromStartEnd(intersection.end+1, i.end)
+		return []*Interval{intervalA, intervalB}
+	}
 
 	// to the left
 	if i.start < intersection.start {
-		return NewIntervalFromStartEnd(i.start, intersection.start-1)
+		return []*Interval{NewIntervalFromStartEnd(i.start, intersection.start-1)}
 	}
 
 	// to the right
-	return NewIntervalFromStartEnd(intersection.end+1, i.end)
+	if i.end > intersection.end {
+		return []*Interval{NewIntervalFromStartEnd(intersection.end+1, i.end)}
+	}
+
+	// equal
+	return []*Interval{}
 }
 
 func (i *Interval) Intersection(other *Interval) *Interval {
@@ -76,12 +92,17 @@ func (i *Interval) Intersection(other *Interval) *Interval {
 	startIntersect := max(startA, startB)
 	endIntersect := min(endA, endB)
 
+	if startIntersect > endIntersect {
+		return nil
+	}
+
 	return NewIntervalFromStartEnd(startIntersect, endIntersect)
 }
 
 type IntervalMap struct {
-	interval    *Interval
-	internalMap *OptimizedMap
+	joinedInterval *Interval
+	intervals      []*Interval
+	internalMap    *OptimizedMap
 }
 
 func NewIntervalMap(lines []string) *IntervalMap {
@@ -113,8 +134,9 @@ func NewIntervalMap(lines []string) *IntervalMap {
 	aMap := NewOptimizedMap(lines)
 
 	return &IntervalMap{
-		interval:    joinedInterval,
-		internalMap: aMap,
+		joinedInterval: joinedInterval,
+		intervals:      intervals,
+		internalMap:    aMap,
 	}
 }
 
@@ -193,7 +215,7 @@ case 7:
 
 func (im *IntervalMap) Transform(srcInterval *Interval) []*Interval {
 	intervalA := srcInterval
-	intervalB := im.interval
+	intervalB := im.joinedInterval
 
 	startA := intervalA.Start()
 	endA := intervalA.End()
@@ -228,30 +250,54 @@ func (im *IntervalMap) Transform(srcInterval *Interval) []*Interval {
 		return []*Interval{newInterval}
 	}
 
-	startA = srcInterval.start
-	endA = srcInterval.end
+	// startA = srcInterval.start
+	// endA = srcInterval.end
 
-	// we mapped to inside the intersection
-	// return the intersection mapped to the new values
-	if startA >= startIntersect && endA <= endIntersect {
-		newStart := im.internalMap.From(srcInterval.Start())
-		newEnd := im.internalMap.From(srcInterval.End())
+	// // we mapped to inside the intersection
+	// // return the intersection mapped to the new values
+	// if startA >= startIntersect && endA <= endIntersect {
+	// 	newStart := im.internalMap.From(srcInterval.Start())
+	// 	newEnd := im.internalMap.From(srcInterval.End())
 
-		newInterval := NewIntervalFromStartEnd(newStart, newEnd)
+	// 	newInterval := NewIntervalFromStartEnd(newStart, newEnd)
 
-		return []*Interval{newInterval}
-	}
+	// 	return []*Interval{newInterval}
+	// }
 
 	// has an intersection
 	// split into intervals
 	// B should not be part of the new intervals
-	intersection := NewIntervalFromStartEnd(startIntersect, endIntersect)
-	newA := srcInterval.Minus(intersection)
-	startIntersect = im.internalMap.From(startIntersect)
-	endIntersect = im.internalMap.From(endIntersect)
-	mappedIntersection := NewIntervalFromStartEnd(startIntersect, endIntersect)
+	// intersection := NewIntervalFromStartEnd(startIntersect, endIntersect)
+	// newA := srcInterval.Minus(intersection)
+	// startIntersect = im.internalMap.From(startIntersect)
+	// endIntersect = im.internalMap.From(endIntersect)
+	// mappedIntersection := NewIntervalFromStartEnd(startIntersect, endIntersect)
 
-	return []*Interval{newA, mappedIntersection}
+	// create multiple intersections by doing Minus the intervals
+	// map those values to the new map
+	// return them
+	mappedIntervals := []*Interval{}
+	fmt.Println("---- Mapped Intervals ----")
+	for _, interval := range im.intervals {
+		intersection := srcInterval.Intersection(interval)
+		if intersection != nil {
+			newStart := im.internalMap.From(intersection.start)
+
+			newEnd := im.internalMap.From(intersection.end)
+			fmt.Println("INTERSECT:", newStart, newEnd)
+			mappedIntervals = append(mappedIntervals, NewIntervalFromStartEnd(newStart, newEnd))
+		}
+	}
+
+	mappedIntervals = append(mappedIntervals, srcInterval.Minus(im.joinedInterval)...)
+
+	sort.Slice(mappedIntervals, func(i, j int) bool {
+		return mappedIntervals[i].start < mappedIntervals[j].start
+	})
+
+	printIntervals(mappedIntervals)
+	fmt.Println("---- END ----")
+	return mappedIntervals
 }
 
 type IntervalAlmanac struct {
@@ -321,7 +367,7 @@ func (a *IntervalAlmanac) Locations() []*Interval {
 
 	printIntervals(a.seedIntervals)
 
-	for i := 0; i < 5; i++ {
+	for i := 0; i < len(a.intervalMaps); i++ {
 		aMap := a.intervalMaps[i]
 
 		fmt.Println()

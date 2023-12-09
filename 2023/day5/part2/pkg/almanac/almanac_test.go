@@ -1,6 +1,7 @@
 package almanac
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -214,11 +215,13 @@ func TestInterval(t *testing.T) {
 		intervalTests := []struct {
 			interval1 *Interval
 			interval2 *Interval
-			want      *Interval
+			want      []*Interval
 		}{
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(35, 40), NewIntervalFromStartEnd(10, 34)},
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(38, 40), NewIntervalFromStartEnd(10, 37)},
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(0, 12), NewIntervalFromStartEnd(13, 37)},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(35, 40), []*Interval{NewIntervalFromStartEnd(10, 34)}},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(38, 40), []*Interval{NewIntervalFromStartEnd(10, 37)}},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(0, 12), []*Interval{NewIntervalFromStartEnd(13, 37)}},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(20, 30), []*Interval{NewIntervalFromStartEnd(10, 19), NewIntervalFromStartEnd(31, 37)}},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(11, 36), []*Interval{NewIntervalFromStartEnd(10, 10), NewIntervalFromStartEnd(37, 37)}},
 		}
 
 		for _, tt := range intervalTests {
@@ -238,7 +241,7 @@ func TestInterval(t *testing.T) {
 			want      *Interval
 		}{
 			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(35, 40), NewIntervalFromStartEnd(35, 37)},
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(38, 40), NewIntervalFromStartEnd(38, 37)},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(38, 40), nil},
 			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(0, 12), NewIntervalFromStartEnd(10, 12)},
 		}
 
@@ -263,13 +266,18 @@ func TestIntervalMap(t *testing.T) {
 			// dest, src, range
 			{"0 15 37", []int{15, 51}, [][]int{[]int{0, 36}}},                               // same range
 			{"0 15 37", []int{21, 41}, [][]int{[]int{6, 26}}},                               // inside intersection
-			{"0 15 37", []int{14, 52}, [][]int{[]int{14, 14}, []int{0, 36}, []int{52, 52}}}, // outside intersection
+			{"0 15 37", []int{14, 52}, [][]int{[]int{0, 36}, []int{14, 14}, []int{52, 52}}}, // outside intersection
 		}
 
 		for _, tt := range intervalTests {
 			intervalMap := NewIntervalMap(strings.Split(tt.mapInput, "\n"))
 			interval := NewIntervalFromStartEnd(tt.sourceIntervalStartEnd[0], tt.sourceIntervalStartEnd[1])
 			got := intervalMap.Transform(interval)
+			for _, g := range got {
+				fmt.Println("XXXXX")
+				fmt.Println(g.start, g.end)
+				fmt.Println("XXXXX")
+			}
 
 			var want []*Interval
 			for _, intervalRange := range tt.destStartEnd {
@@ -292,7 +300,7 @@ func TestIntervalMap(t *testing.T) {
 		}{
 			// dest, src, range
 			{`0 15 37
-			37 52 2`, []int{15, 53}, [][]int{[]int{0, 38}}},
+			37 52 2`, []int{15, 53}, [][]int{[]int{0, 36}, []int{37, 38}}},
 		}
 
 		for _, tt := range intervalTests {
