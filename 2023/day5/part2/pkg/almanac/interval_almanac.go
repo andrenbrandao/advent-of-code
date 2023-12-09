@@ -42,34 +42,6 @@ func NewIntervalAlmanac(input string) *IntervalAlmanac {
 	}
 }
 
-func extractSeedIntervals(line string) []*intvl.Interval {
-	s := strings.Split(line, ":")
-	fields := strings.Fields(s[1])
-	intervals := []*intvl.Interval{}
-
-	for i := 0; i < len(fields); i += 2 {
-		start, _ := strconv.Atoi(fields[i])
-		aRange, _ := strconv.Atoi(fields[i+1])
-		newInterval := intvl.NewIntervalFromRange(start, aRange)
-		intervals = append(intervals, newInterval)
-	}
-
-	return intervals
-}
-
-func extractIntervalMap(i int, lines []string) (int, *mapper.IntervalMap) {
-	top := i
-	bottom := i
-
-	for len(lines[bottom]) > 0 {
-		bottom++
-	}
-
-	aMap := mapper.NewIntervalMap(lines[top:bottom])
-
-	return bottom, aMap
-}
-
 func (a *IntervalAlmanac) Locations() []*intvl.Interval {
 	intervals := a.seedIntervals
 
@@ -97,4 +69,32 @@ func (a *IntervalAlmanac) LowestLocation() int {
 	})
 
 	return locations[0].Start()
+}
+
+func extractSeedIntervals(line string) []*intvl.Interval {
+	s := strings.Split(line, ":")
+	fields := strings.Fields(s[1])
+	intervals := []*intvl.Interval{}
+
+	for i := 0; i < len(fields); i += 2 {
+		start, _ := strconv.Atoi(fields[i])
+		aRange, _ := strconv.Atoi(fields[i+1])
+		newInterval := intvl.NewIntervalFromRange(start, aRange)
+		intervals = append(intervals, newInterval)
+	}
+
+	return intervals
+}
+
+func extractIntervalMap(i int, lines []string) (int, *mapper.IntervalMap) {
+	top := i
+	bottom := i
+
+	for len(lines[bottom]) > 0 {
+		bottom++
+	}
+
+	aMap := mapper.NewIntervalMap(lines[top:bottom])
+
+	return bottom, aMap
 }

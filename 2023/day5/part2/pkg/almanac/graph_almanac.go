@@ -94,3 +94,25 @@ func (a *GraphAlmanac) OptimizedLowestLocation() int {
 
 	return -1
 }
+
+func extractMap(i int, lines []string) (int, *mapper.Map) {
+	top := i
+	bottom := i
+	for len(lines[bottom]) > 0 {
+		bottom++
+	}
+
+	m := mapper.NewMap(lines[top:bottom])
+	return bottom, m
+}
+
+func extractOptimizedMap(i int, lines []string) (int, *mapper.OptimizedMap) {
+	top := i
+	bottom := i
+	for len(lines[bottom]) > 0 {
+		bottom++
+	}
+
+	m := mapper.NewOptimizedMap(lines[top:bottom])
+	return bottom, m
+}
