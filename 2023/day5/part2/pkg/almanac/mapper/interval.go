@@ -122,35 +122,6 @@ case 7:
 */
 
 func (im *IntervalMap) Transform(srcInterval *intvl.Interval) []*intvl.Interval {
-	intervalA := srcInterval
-	intervalB := im.joinedInterval
-
-	startA := intervalA.Start()
-	endA := intervalA.End()
-	startB := intervalB.Start()
-	endB := intervalB.End()
-
-	// sort them
-	if startA > startB {
-		intervalA, intervalB = intervalB, intervalA
-		startA, startB = startB, startA
-		endA, endB = endB, endA
-	}
-
-	startIntersect := max(startA, startB)
-	endIntersect := min(endA, endB)
-
-	// non-overlapping
-	// no need to create others
-	if startIntersect > endIntersect {
-		newStart := im.internalMap.Transform(srcInterval.Start())
-		newEnd := im.internalMap.Transform(srcInterval.End())
-
-		newInterval := intvl.NewIntervalFromStartEnd(newStart, newEnd)
-
-		return []*intvl.Interval{newInterval}
-	}
-
 	// create multiple intersections by doing Minus the intervals
 	// map those values to the new map
 	// return them

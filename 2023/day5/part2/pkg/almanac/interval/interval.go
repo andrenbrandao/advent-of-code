@@ -42,6 +42,7 @@ func (i *Interval) End() int {
 	return i.end
 }
 
+// Joins two intervals from the beginning and end, including empty spaces
 func (i *Interval) Join(other *Interval) *Interval {
 	newStart := min(i.start, other.start)
 	newEnd := max(i.end, other.end)
