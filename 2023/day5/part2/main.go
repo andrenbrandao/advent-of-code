@@ -2,6 +2,7 @@ package main
 
 import (
 	"day5/pkg/almanac"
+	"day5/pkg/almanac/seeds"
 	"fmt"
 	"log"
 	"os"
@@ -25,12 +26,12 @@ func main() {
 }
 
 func part1(input []byte) {
-	almanac := almanac.NewGraphAlmanac(string(input), &almanac.DefaultSeedExtractor{})
+	almanac := almanac.NewGraphAlmanac(string(input), &seeds.DefaultSeedExtractor{})
 	fmt.Println(almanac.LowestLocation())
 }
 
 func part2_suboptimal(input []byte) {
-	almanac := almanac.NewGraphAlmanac(string(input), &almanac.RangeSeedExtractor{})
+	almanac := almanac.NewGraphAlmanac(string(input), &seeds.RangeSeedExtractor{})
 	fmt.Println(almanac.OptimizedLowestLocation())
 }
 

@@ -1,6 +1,7 @@
 package almanac
 
 import (
+	"day5/pkg/almanac/seeds"
 	"reflect"
 	"testing"
 )
@@ -42,7 +43,7 @@ humidity-to-location map:
 `
 
 	t.Run("returns the location mapped from a seed", func(t *testing.T) {
-		almanac := NewGraphAlmanac(input, &DefaultSeedExtractor{})
+		almanac := NewGraphAlmanac(input, &seeds.DefaultSeedExtractor{})
 		got := almanac.Locations()
 		want := []int{82, 43, 86, 35}
 
@@ -52,7 +53,7 @@ humidity-to-location map:
 	})
 
 	t.Run("returns the lowest location", func(t *testing.T) {
-		almanac := NewGraphAlmanac(input, &DefaultSeedExtractor{})
+		almanac := NewGraphAlmanac(input, &seeds.DefaultSeedExtractor{})
 		got := almanac.LowestLocation()
 		want := 35
 
@@ -62,7 +63,7 @@ humidity-to-location map:
 	})
 
 	t.Run("returns the lowest location for a Range Seed Extractor", func(t *testing.T) {
-		almanac := NewGraphAlmanac(input, &RangeSeedExtractor{})
+		almanac := NewGraphAlmanac(input, &seeds.RangeSeedExtractor{})
 		got := almanac.LowestLocation()
 		want := 46
 
@@ -71,7 +72,7 @@ humidity-to-location map:
 		}
 	})
 	t.Run("returns the lowest location using the reverse path", func(t *testing.T) {
-		almanac := NewGraphAlmanac(input, &RangeSeedExtractor{})
+		almanac := NewGraphAlmanac(input, &seeds.RangeSeedExtractor{})
 		got := almanac.OptimizedLowestLocation()
 		want := 46
 

@@ -1,4 +1,4 @@
-package almanac
+package seeds
 
 import (
 	"strconv"
@@ -6,11 +6,12 @@ import (
 )
 
 type SeedExtractor interface {
-	extract(line string) []int
+	Extract(line string) []int
 }
+
 type DefaultSeedExtractor struct{}
 
-func (e *DefaultSeedExtractor) extract(line string) []int {
+func (e *DefaultSeedExtractor) Extract(line string) []int {
 	s := strings.Split(line, ":")
 	fields := strings.Fields(s[1])
 	seeds := []int{}
@@ -25,7 +26,7 @@ func (e *DefaultSeedExtractor) extract(line string) []int {
 
 type RangeSeedExtractor struct{}
 
-func (e *RangeSeedExtractor) extract(line string) []int {
+func (e *RangeSeedExtractor) Extract(line string) []int {
 	s := strings.Split(line, ":")
 	fields := strings.Fields(s[1])
 	seeds := []int{}
