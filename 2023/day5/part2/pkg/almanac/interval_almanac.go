@@ -1,112 +1,21 @@
 package almanac
 
 import (
+	intvl "day5/pkg/almanac/interval"
 	"day5/pkg/almanac/mapper"
 	"sort"
 	"strconv"
 	"strings"
 )
 
-type Interval struct {
-	start int
-	end   int
-}
-
-func NewInterval(input string) *Interval {
-	fields := strings.Fields(input)
-	start, _ := strconv.Atoi(fields[0])
-	aRange, _ := strconv.Atoi(fields[1])
-
-	return NewIntervalFromRange(start, aRange)
-}
-
-func NewIntervalFromRange(start int, aRange int) *Interval {
-	end := start + aRange - 1
-
-	return &Interval{
-		start: start,
-		end:   end,
-	}
-}
-
-func NewIntervalFromStartEnd(start int, end int) *Interval {
-	return &Interval{
-		start: start,
-		end:   end,
-	}
-}
-
-func (i *Interval) Start() int {
-	return i.start
-}
-
-func (i *Interval) End() int {
-	return i.end
-}
-
-func (i *Interval) Join(other *Interval) *Interval {
-	newStart := min(i.start, other.start)
-	newEnd := max(i.end, other.end)
-	return NewIntervalFromStartEnd(newStart, newEnd)
-}
-
-func (i *Interval) Minus(other *Interval) []*Interval {
-	intersection := i.Intersection(other)
-
-	if intersection == nil {
-		return []*Interval{i}
-	}
-
-	// intersection is inside or equal
-	if i.start < intersection.start && i.end > intersection.end {
-		intervalA := NewIntervalFromStartEnd(i.start, intersection.start-1)
-		intervalB := NewIntervalFromStartEnd(intersection.end+1, i.end)
-		return []*Interval{intervalA, intervalB}
-	}
-
-	// to the left
-	if i.start < intersection.start {
-		return []*Interval{NewIntervalFromStartEnd(i.start, intersection.start-1)}
-	}
-
-	// to the right
-	if i.end > intersection.end {
-		return []*Interval{NewIntervalFromStartEnd(intersection.end+1, i.end)}
-	}
-
-	// equal
-	return []*Interval{}
-}
-
-func (i *Interval) Intersection(other *Interval) *Interval {
-	startA := i.Start()
-	endA := i.End()
-	startB := other.Start()
-	endB := other.End()
-
-	if startA > startB {
-		startA, startB = startB, startA
-		endA, endB = endB, endA
-	}
-
-	startIntersect := max(startA, startB)
-	endIntersect := min(endA, endB)
-
-	if startIntersect > endIntersect {
-		return nil
-	}
-
-	return NewIntervalFromStartEnd(startIntersect, endIntersect)
-}
-
 type IntervalMap struct {
-	joinedInterval *Interval
-	intervals      []*Interval
+	joinedInterval *intvl.Interval
+	intervals      []*intvl.Interval
 	internalMap    *mapper.OptimizedMap
 }
 
 func NewIntervalMap(lines []string) *IntervalMap {
-	intervals := []*Interval{}
+	intervals := []*intvl.Interval{}
 
 	for _, line := range lines {
 		if len(line) == 0 {
@@ -117,7 +26,7 @@ func NewIntervalMap(lines []string) *IntervalMap {
 		dataSrc, _ := strconv.Atoi(fields[1])
 		aRange, _ := strconv.Atoi(fields[2])
 
-		interval := NewIntervalFromRange(dataSrc, aRange)
+		interval := intvl.NewIntervalFromRange(dataSrc, aRange)
 		intervals = append(intervals, interval)
 	}
 
@@ -213,7 +122,7 @@ case 7:
 
 */
 
-func (im *IntervalMap) Transform(srcInterval *Interval) []*Interval {
+func (im *IntervalMap) Transform(srcInterval *intvl.Interval) []*intvl.Interval {
 	intervalA := srcInterval
 	intervalB := im.joinedInterval
 
@@ -238,43 +147,43 @@ func (im *IntervalMap) Transform(srcInterval *Interval) []*Interval {
 		newStart := im.internalMap.From(srcInterval.Start())
 		newEnd := im.internalMap.From(srcInterval.End())
 
-		newInterval := NewIntervalFromStartEnd(newStart, newEnd)
+		newInterval := intvl.NewIntervalFromStartEnd(newStart, newEnd)
 
-		return []*Interval{newInterval}
+		return []*intvl.Interval{newInterval}
 	}
 
 	// create multiple intersections by doing Minus the intervals
 	// map those values to the new map
 	// return them
-	mappedIntervals := []*Interval{}
+	mappedIntervals := []*intvl.Interval{}
 	for _, interval := range im.intervals {
 		intersection := srcInterval.Intersection(interval)
 		if intersection != nil {
-			newStart := im.internalMap.From(intersection.start)
+			newStart := im.internalMap.From(intersection.Start())
 
-			newEnd := im.internalMap.From(intersection.end)
-			mappedIntervals = append(mappedIntervals, NewIntervalFromStartEnd(newStart, newEnd))
+			newEnd := im.internalMap.From(intersection.End())
+			mappedIntervals = append(mappedIntervals, intvl.NewIntervalFromStartEnd(newStart, newEnd))
 		}
 	}
 
 	mappedIntervals = append(mappedIntervals, srcInterval.Minus(im.joinedInterval)...)
 
 	sort.Slice(mappedIntervals, func(i, j int) bool {
-		return mappedIntervals[i].start < mappedIntervals[j].start
+		return mappedIntervals[i].Start() < mappedIntervals[j].Start()
 	})
 
 	return mappedIntervals
 }
 
 type IntervalAlmanac struct {
-	seedIntervals []*Interval
+	seedIntervals []*intvl.Interval
 	intervalMaps  []*IntervalMap
 }
 
 func NewIntervalAlmanac(input string) *IntervalAlmanac {
 	lines := strings.Split(input, "\n")
 	intervalMaps := make([]*IntervalMap, 0)
-	seedIntervals := []*Interval{}
+	seedIntervals := []*intvl.Interval{}
 
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
@@ -300,15 +209,15 @@ func NewIntervalAlmanac(input string) *IntervalAlmanac {
 	}
 }
 
-func extractSeedIntervals(line string) []*Interval {
+func extractSeedIntervals(line string) []*intvl.Interval {
 	s := strings.Split(line, ":")
 	fields := strings.Fields(s[1])
-	intervals := []*Interval{}
+	intervals := []*intvl.Interval{}
 
 	for i := 0; i < len(fields); i += 2 {
 		start, _ := strconv.Atoi(fields[i])
 		aRange, _ := strconv.Atoi(fields[i+1])
-		newInterval := NewIntervalFromRange(start, aRange)
+		newInterval := intvl.NewIntervalFromRange(start, aRange)
 		intervals = append(intervals, newInterval)
 	}
 
@@ -328,13 +237,13 @@ func extractIntervalMap(i int, lines []string) (int, *IntervalMap) {
 	return bottom, aMap
 }
 
-func (a *IntervalAlmanac) Locations() []*Interval {
+func (a *IntervalAlmanac) Locations() []*intvl.Interval {
 	intervals := a.seedIntervals
 
 	for i := 0; i < len(a.intervalMaps); i++ {
 		aMap := a.intervalMaps[i]
 
-		currentIntervals := []*Interval{}
+		currentIntervals := []*intvl.Interval{}
 		for _, interval := range intervals {
 			for _, mappedInterval := range aMap.Transform(interval) {
 				currentIntervals = append(currentIntervals, mappedInterval)
