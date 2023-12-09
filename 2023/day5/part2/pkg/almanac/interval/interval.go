@@ -55,24 +55,26 @@ func (i *Interval) Minus(other *Interval) []*Interval {
 		return []*Interval{i}
 	}
 
-	// intersection is inside or equal
+	// intersection is inside
+	// split it into two
 	if i.start < intersection.start && i.end > intersection.end {
 		intervalA := NewIntervalFromStartEnd(i.start, intersection.start-1)
 		intervalB := NewIntervalFromStartEnd(intersection.end+1, i.end)
 		return []*Interval{intervalA, intervalB}
 	}
 
-	// to the left
+	// removes right side
 	if i.start < intersection.start {
 		return []*Interval{NewIntervalFromStartEnd(i.start, intersection.start-1)}
 	}
 
-	// to the right
+	// removes left side
 	if i.end > intersection.end {
 		return []*Interval{NewIntervalFromStartEnd(intersection.end+1, i.end)}
 	}
 
 	// equal
+	// return empty array of intervals
 	return []*Interval{}
 }
 

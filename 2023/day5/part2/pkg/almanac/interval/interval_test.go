@@ -35,11 +35,13 @@ func TestInterval(t *testing.T) {
 			interval2 *Interval
 			want      []*Interval
 		}{
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(35, 40), []*Interval{NewIntervalFromStartEnd(10, 34)}},
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(38, 40), []*Interval{NewIntervalFromStartEnd(10, 37)}},
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(0, 12), []*Interval{NewIntervalFromStartEnd(13, 37)}},
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(20, 30), []*Interval{NewIntervalFromStartEnd(10, 19), NewIntervalFromStartEnd(31, 37)}},
-			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(11, 36), []*Interval{NewIntervalFromStartEnd(10, 10), NewIntervalFromStartEnd(37, 37)}},
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(38, 40), []*Interval{NewIntervalFromStartEnd(10, 37)}},                                  // nothing to remove on the right
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(0, 9), []*Interval{NewIntervalFromStartEnd(10, 37)}},                                    // nothing to remove on the left
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(10, 37), []*Interval{}},                                                                 // removes itself, return empty aray
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(35, 40), []*Interval{NewIntervalFromStartEnd(10, 34)}},                                  // removes right
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(0, 12), []*Interval{NewIntervalFromStartEnd(13, 37)}},                                   // removes left
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(20, 30), []*Interval{NewIntervalFromStartEnd(10, 19), NewIntervalFromStartEnd(31, 37)}}, // removes middle
+			{NewIntervalFromStartEnd(10, 37), NewIntervalFromStartEnd(11, 36), []*Interval{NewIntervalFromStartEnd(10, 10), NewIntervalFromStartEnd(37, 37)}}, // removes middle and leave points
 		}
 
 		for _, tt := range intervalTests {
