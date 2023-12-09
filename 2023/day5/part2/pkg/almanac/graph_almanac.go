@@ -30,7 +30,7 @@ func NewGraphAlmanac(input string, seedExtractor SeedExtractor) *GraphAlmanac {
 
 		if strings.Contains(line, "map:") {
 			var aMap *mapper.OptimizedMap
-			i, aMap = mapper.ExtractOptimizedMap(i+1, lines)
+			i, aMap = extractOptimizedMap(i+1, lines)
 			maps = append(maps, aMap)
 		}
 	}

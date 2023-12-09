@@ -17,7 +17,7 @@ func main() {
 	}
 
 	// part1(input)
-	// part2_suboptimal(input)
+	// part2_suboptimal(input) // runs forever
 	part2(input)
 
 	elapsed := time.Since(start)
