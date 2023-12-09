@@ -1,20 +1,21 @@
 package almanac
 
 import (
+	"day5/pkg/almanac/mapper"
 	"sort"
 	"strings"
 )
 
 type GraphAlmanac struct {
 	seedsInput    string
-	maps          []*OptimizedMap
+	maps          []*mapper.OptimizedMap
 	seedExtractor SeedExtractor
 }
 
 func NewGraphAlmanac(input string, seedExtractor SeedExtractor) *GraphAlmanac {
 	lines := strings.Split(input, "\n")
 	var seedsInput string
-	maps := []*OptimizedMap{}
+	maps := []*mapper.OptimizedMap{}
 
 	for i := 0; i < len(lines); i++ {
 		line := lines[i]
@@ -28,8 +29,8 @@ func NewGraphAlmanac(input string, seedExtractor SeedExtractor) *GraphAlmanac {
 		}
 
 		if strings.Contains(line, "map:") {
-			var aMap *OptimizedMap
-			i, aMap = extractOptimizedMap(i+1, lines)
+			var aMap *mapper.OptimizedMap
+			i, aMap = mapper.ExtractOptimizedMap(i+1, lines)
 			maps = append(maps, aMap)
 		}
 	}

@@ -1,4 +1,4 @@
-package almanac
+package mapper
 
 import (
 	"strconv"

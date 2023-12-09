@@ -1,6 +1,7 @@
 package almanac
 
 import (
+	"day5/pkg/almanac/mapper"
 	"sort"
 	"strconv"
 	"strings"
@@ -101,7 +102,7 @@ func (i *Interval) Intersection(other *Interval) *Interval {
 type IntervalMap struct {
 	joinedInterval *Interval
 	intervals      []*Interval
-	internalMap    *OptimizedMap
+	internalMap    *mapper.OptimizedMap
 }
 
 func NewIntervalMap(lines []string) *IntervalMap {
@@ -130,7 +131,7 @@ func NewIntervalMap(lines []string) *IntervalMap {
 		joinedInterval = joinedInterval.Join(intervals[i])
 	}
 
-	aMap := NewOptimizedMap(lines)
+	aMap := mapper.NewOptimizedMap(lines)
 
 	return &IntervalMap{
 		joinedInterval: joinedInterval,

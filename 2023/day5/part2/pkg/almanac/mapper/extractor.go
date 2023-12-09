@@ -1,6 +1,6 @@
-package almanac
+package mapper
 
-func extractMap(i int, lines []string) (int, *Map) {
+func ExtractMap(i int, lines []string) (int, *Map) {
 	top := i
 	bottom := i
 	for len(lines[bottom]) > 0 {
@@ -11,7 +11,7 @@ func extractMap(i int, lines []string) (int, *Map) {
 	return bottom, m
 }
 
-func extractOptimizedMap(i int, lines []string) (int, *OptimizedMap) {
+func ExtractOptimizedMap(i int, lines []string) (int, *OptimizedMap) {
 	top := i
 	bottom := i
 	for len(lines[bottom]) > 0 {
