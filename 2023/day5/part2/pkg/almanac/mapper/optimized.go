@@ -50,7 +50,7 @@ func (m *OptimizedMap) ReverseKeys() []int {
 	return keys
 }
 
-func (m *OptimizedMap) FromReverse(src int) int {
+func (m *OptimizedMap) TransformReverse(src int) int {
 	m.calculateReverseMap(src)
 
 	val, ok := m.internalReverseMap[src]

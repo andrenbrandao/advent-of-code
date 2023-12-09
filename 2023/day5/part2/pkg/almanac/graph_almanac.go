@@ -82,17 +82,15 @@ func (a *GraphAlmanac) OptimizedLowestLocation() int {
 	}
 	seedSet := seeds.NewSeedSet(a.seedsInput)
 
-	for location := 0; location < 3530465412; location++ {
+	for location := 0; ; location++ {
 		dest := location
 		for _, aMap := range reversedMaps {
-			dest = aMap.FromReverse(dest)
+			dest = aMap.TransformReverse(dest)
 		}
 		if seedSet.Has(dest) {
 			return location
 		}
 	}
-
-	return -1
 }
 
 func extractMap(i int, lines []string) (int, *mapper.Map) {
