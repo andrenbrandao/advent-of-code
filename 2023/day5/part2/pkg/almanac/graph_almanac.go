@@ -54,7 +54,7 @@ func (a *GraphAlmanac) Locations() []int {
 		dest := seed
 
 		for _, aMap := range a.maps {
-			dest = aMap.From(dest)
+			dest = aMap.Transform(dest)
 		}
 
 		locations = append(locations, dest)

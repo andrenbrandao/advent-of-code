@@ -20,7 +20,7 @@ func NewOptimizedMap(lines []string) *OptimizedMap {
 	return &aMap
 }
 
-func (m *OptimizedMap) From(src int) int {
+func (m *OptimizedMap) Transform(src int) int {
 	m.calculateMap(src)
 
 	val, ok := m.internalMap[src]

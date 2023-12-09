@@ -143,8 +143,8 @@ func (im *IntervalMap) Transform(srcInterval *intvl.Interval) []*intvl.Interval 
 	// non-overlapping
 	// no need to create others
 	if startIntersect > endIntersect {
-		newStart := im.internalMap.From(srcInterval.Start())
-		newEnd := im.internalMap.From(srcInterval.End())
+		newStart := im.internalMap.Transform(srcInterval.Start())
+		newEnd := im.internalMap.Transform(srcInterval.End())
 
 		newInterval := intvl.NewIntervalFromStartEnd(newStart, newEnd)
 
@@ -158,9 +158,9 @@ func (im *IntervalMap) Transform(srcInterval *intvl.Interval) []*intvl.Interval 
 	for _, interval := range im.intervals {
 		intersection := srcInterval.Intersection(interval)
 		if intersection != nil {
-			newStart := im.internalMap.From(intersection.Start())
+			newStart := im.internalMap.Transform(intersection.Start())
 
-			newEnd := im.internalMap.From(intersection.End())
+			newEnd := im.internalMap.Transform(intersection.End())
 			mappedIntervals = append(mappedIntervals, intvl.NewIntervalFromStartEnd(newStart, newEnd))
 		}
 	}
