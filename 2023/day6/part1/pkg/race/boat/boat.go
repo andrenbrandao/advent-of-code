@@ -1,23 +1,20 @@
 package boat
 
-type Charge int
-type Time int
-type Distance int
-type Velocity int
+import "day6/pkg/race/types"
 
 type Boat struct {
-	charge Charge
+	charge types.Charge
 }
 
-func NewBoat(charge Charge) *Boat {
+func NewBoat(charge types.Charge) *Boat {
 	return &Boat{charge}
 }
 
-func (b *Boat) Distance(time Time) Distance {
+func (b *Boat) Distance(time types.Time) types.Distance {
 	distance := int(time) * int(b.Velocity())
-	return Distance(distance)
+	return types.Distance(distance)
 }
 
-func (b *Boat) Velocity() Velocity {
-	return Velocity(b.charge)
+func (b *Boat) Velocity() types.Velocity {
+	return types.Velocity(b.charge)
 }
