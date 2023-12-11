@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day6/pkg/race"
 	"fmt"
 	"log"
 	"os"
@@ -13,5 +14,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(input)
+	raceRecords := race.NewRaceRecords(string(input))
+	fmt.Println(raceRecords.MultipliedNumberWays())
 }
