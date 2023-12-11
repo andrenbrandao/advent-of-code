@@ -16,8 +16,8 @@ func NewRaceRecords(input string) *RaceRecords {
 
 func (rr *RaceRecords) WaysToWinAllRaces() []int {
 	lines := strings.Split(rr.input, "\n")
-	maxTimes := []int{}
-	recordDistances := []int{}
+	maxTimes := []types.Time{}
+	recordDistances := []types.Distance{}
 
 	for _, line := range lines {
 		if len(line) == 0 {
@@ -36,8 +36,8 @@ func (rr *RaceRecords) WaysToWinAllRaces() []int {
 	races := []*Race{}
 
 	for i := 0; i < len(maxTimes); i++ {
-		time := types.Time(maxTimes[i])
-		distance := types.Distance(recordDistances[i])
+		time := maxTimes[i]
+		distance := recordDistances[i]
 		race := NewRace(time, distance)
 		races = append(races, race)
 	}
@@ -65,27 +65,27 @@ func (rr *RaceRecords) MultipliedNumberWays() int {
 	return mul
 }
 
-func (*RaceRecords) parseTimes(line string) []int {
-	maxTimes := []int{}
+func (*RaceRecords) parseTimes(line string) []types.Time {
+	maxTimes := []types.Time{}
 	s := strings.Split(line, ":")
 	fields := strings.Fields(s[1])
 
 	for _, f := range fields {
-		time, _ := strconv.Atoi(f)
-		maxTimes = append(maxTimes, time)
+		intVal, _ := strconv.Atoi(f)
+		maxTimes = append(maxTimes, types.Time(intVal))
 	}
 
 	return maxTimes
 }
 
-func (*RaceRecords) parseDistances(line string) []int {
-	distances := []int{}
+func (*RaceRecords) parseDistances(line string) []types.Distance {
+	distances := []types.Distance{}
 	s := strings.Split(line, ":")
 	fields := strings.Fields(s[1])
 
 	for _, f := range fields {
-		time, _ := strconv.Atoi(f)
-		distances = append(distances, time)
+		intVal, _ := strconv.Atoi(f)
+		distances = append(distances, types.Distance(intVal))
 	}
 
 	return distances
