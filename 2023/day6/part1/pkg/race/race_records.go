@@ -50,6 +50,21 @@ func (rr *RaceRecords) WaysToWinAllRaces() []int {
 	return waysToWin
 }
 
+func (rr *RaceRecords) MultipliedNumberWays() int {
+	waysToWin := rr.WaysToWinAllRaces()
+
+	if len(waysToWin) == 0 {
+		return 0
+	}
+
+	mul := 1
+	for _, ways := range waysToWin {
+		mul *= ways
+	}
+
+	return mul
+}
+
 func (*RaceRecords) parseTimes(line string) []int {
 	maxTimes := []int{}
 	s := strings.Split(line, ":")
