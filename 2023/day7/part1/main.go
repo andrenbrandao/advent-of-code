@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 )
 
 func main() {
+	start := time.Now()
 	input, err := os.ReadFile("input")
 
 	if err != nil {
@@ -14,4 +16,6 @@ func main() {
 	}
 
 	fmt.Println(input)
+	elapsed := time.Since(start)
+	log.Printf("Took %s", elapsed)
 }
