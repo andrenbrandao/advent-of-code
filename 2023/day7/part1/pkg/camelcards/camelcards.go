@@ -1,40 +1,30 @@
 package camelcards
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
-type CardType rune
-
-var cardTypes = []CardType{'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'}
-
-type Card struct {
-	cardType CardType
+type Game struct {
+	hands []*Hand
 }
 
-func NewCard(ct CardType) *Card {
-	return &Card{cardType: ct}
-}
-
-// StrongerThan returns if one card is stronger than the other
-func (c *Card) StrongerThan(other *Card) bool {
-	return indexOf(cardTypes, c.cardType) < indexOf(cardTypes, other.cardType)
-}
-
-// Equals compares two cards
-func (c *Card) Equals(other *Card) bool {
-	return c.cardType == other.cardType
-}
-
-// indexOf finds the index of the cardType in the cardTypes array
-func indexOf(cardTypes []CardType, ct CardType) int {
-	for i, lstType := range cardTypes {
-		if lstType == ct {
-			return i
-		}
+func NewGame(handStrings []string) *Game {
+	hands := []*Hand{}
+	for _, hs := range handStrings {
+		hands = append(hands, NewHand(hs))
 	}
 
-	return -1
+	return &Game{hands}
 }
 
-func (c *Card) String() string {
-	return fmt.Sprintf("%c", c.cardType)
+// Sort hands from weakest to strongest
+func (g *Game) Sort() {
+	sort.Slice(g.hands, func(i, j int) bool {
+		return g.hands[i].StrongerThan(g.hands[j])
+	})
+}
+
+func (g *Game) String() string {
+	return fmt.Sprintf("%s", g.hands)
 }

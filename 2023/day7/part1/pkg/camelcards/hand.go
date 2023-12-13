@@ -2,6 +2,7 @@ package camelcards
 
 import (
 	"errors"
+	"fmt"
 	"sort"
 )
 
@@ -44,6 +45,10 @@ func (h *Hand) StrongerThan(other *Hand) bool {
 	}
 
 	return false
+}
+
+func (h *Hand) String() string {
+	return fmt.Sprintf("%s", h.cards)
 }
 
 // Sort cards from strongest to weakest
