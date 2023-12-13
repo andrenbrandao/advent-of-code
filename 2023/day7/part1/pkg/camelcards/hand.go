@@ -5,15 +5,15 @@ import (
 	"sort"
 )
 
-// Ordered from most valuable to least valuable
+// Ordered from least valuable to most valuable
 const (
-	FIVE_OF_KIND = iota
-	FOUR_OF_KIND
-	FULL_HOUSE
-	THREE_OF_KIND
-	TWO_PAIR
+	HIGH_CARD = iota
 	ONE_PAIR
-	HIGH_CARD
+	TWO_PAIR
+	THREE_OF_KIND
+	FULL_HOUSE
+	FOUR_OF_KIND
+	FIVE_OF_KIND
 )
 
 type Hand struct {
@@ -29,6 +29,24 @@ func NewHand(hand string) *Hand {
 	return &Hand{cards}
 }
 
+func (h *Hand) StrongerThan(other *Hand) bool {
+	type1 := h.Type()
+	type2 := other.Type()
+
+	if type1 != type2 {
+		return type1 > type2
+	}
+
+	for i := 0; i < len(h.cards); i++ {
+		if h.cards[i].StrongerThan(other.cards[i]) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Sort cards from strongest to weakest
 func (h *Hand) Sort() {
 	sort.Slice(h.cards, func(i, j int) bool {
 		return h.cards[i].StrongerThan(h.cards[j])

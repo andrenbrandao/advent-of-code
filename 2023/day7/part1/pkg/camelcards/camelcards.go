@@ -1,5 +1,7 @@
 package camelcards
 
+import "fmt"
+
 type CardType rune
 
 var cardTypes = []CardType{'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2'}
@@ -31,4 +33,8 @@ func indexOf(cardTypes []CardType, ct CardType) int {
 	}
 
 	return -1
+}
+
+func (c *Card) String() string {
+	return fmt.Sprintf("%c", c.cardType)
 }
