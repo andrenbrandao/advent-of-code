@@ -27,6 +27,10 @@ func NewHand(hand string) *Hand {
 		cards = append(cards, NewCard(CardType(c)))
 	}
 
+	return NewHandWithCards(cards)
+}
+
+func NewHandWithCards(cards []*Card) *Hand {
 	return &Hand{cards}
 }
 
@@ -39,12 +43,14 @@ func (h *Hand) StrongerThan(other *Hand) bool {
 	}
 
 	for i := 0; i < len(h.cards); i++ {
-		if h.cards[i].StrongerThan(other.cards[i]) {
-			return true
+		if h.cards[i].Equals(other.cards[i]) {
+			continue
 		}
+
+		return h.cards[i].StrongerThan(other.cards[i])
 	}
 
-	return false
+	panic(errors.New("Internal error"))
 }
 
 func (h *Hand) String() string {
@@ -59,8 +65,6 @@ func (h *Hand) Sort() {
 }
 
 func (h *Hand) Type() int {
-	h.Sort()
-
 	for _, typeChecker := range typeCheckers {
 		handType, err := typeChecker(h)
 		if err == nil {
@@ -77,6 +81,7 @@ var typeCheckers = []func(h *Hand) (int, error){
 	fullHouseChecker,
 	threeOfKindChecker,
 	twoPairChecker,
+	onePairChecker,
 	highCardChecker,
 }
 
@@ -130,6 +135,16 @@ func twoPairChecker(h *Hand) (int, error) {
 	return -1, errors.New("Not of this type")
 }
 
+func onePairChecker(h *Hand) (int, error) {
+	buckets, maxCount := calculateBuckets(h)
+
+	if len(buckets) == 4 && maxCount == 2 {
+		return ONE_PAIR, nil
+	}
+
+	return -1, errors.New("Not of this type")
+}
+
 func highCardChecker(h *Hand) (int, error) {
 	buckets, _ := calculateBuckets(h)
 
@@ -141,13 +156,18 @@ func highCardChecker(h *Hand) (int, error) {
 }
 
 func calculateBuckets(h *Hand) ([]int, int) {
+	cards := make([]*Card, len(h.cards))
+	copy(cards, h.cards)
+	hand := NewHandWithCards(cards)
+	hand.Sort()
+
 	buckets := []int{}
 
 	maxCount := 1
 	currentCount := 1
 
-	for i := 1; i < len(h.cards); i++ {
-		if h.cards[i].Equals(h.cards[i-1]) {
+	for i := 1; i < len(hand.cards); i++ {
+		if hand.cards[i].Equals(hand.cards[i-1]) {
 			currentCount++
 		} else {
 			buckets = append(buckets, currentCount)

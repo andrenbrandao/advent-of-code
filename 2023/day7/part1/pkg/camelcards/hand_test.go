@@ -17,6 +17,7 @@ func TestHand(t *testing.T) {
 			{"Full house", "23332", FULL_HOUSE},
 			{"Three of a kind", "13332", THREE_OF_KIND},
 			{"Two pair", "23432", TWO_PAIR},
+			{"One pair", "25432", ONE_PAIR},
 			{"High card", "23456", HIGH_CARD},
 		}
 
@@ -36,13 +37,22 @@ func TestHand(t *testing.T) {
 			want  bool // winner first
 		}{
 			{"AAAAA", "AAAAQ", true},  // five of kind
+			{"AAAAQ", "AAAAA", false}, // five of kind
 			{"AAAAA", "QQQQQ", true},  // five of kind
 			{"QQQQQ", "AAAAA", false}, // five of kind
+			{"QQQQQ", "AAAAA", false}, // five of kind
 			{"AAAAQ", "23332", true},  // four of kind
+			{"23332", "AAAAQ", false}, // four of kind
 			{"23332", "24443", true},  // full house
+			{"24443", "23332", false}, // full house
 			{"24443", "23432", true},  // three of kind
+			{"23432", "24443", false}, // three of kind
 			{"23432", "23456", true},  // two pair
-			{"23456", "33456", true},  // high card
+			{"23456", "23432", false}, // two pair
+			{"KK677", "KTJJT", true},  // two pair
+			{"KTJJT", "KK677", false}, // two pair
+			{"23456", "22345", false}, // one pair & high card
+			{"23457", "23456", true},  // high card
 			{"23456", "23457", false}, // high card
 		}
 

@@ -95,3 +95,13 @@ QQQJA 483
 
 The Game should receive the input and create the Hands and Bids.
 We call `Winnings` and should receive the result.
+
+## Edge cases
+
+Made a mistake to assume that we would compare two hands by using the most valuable
+cards first.
+
+Needs to remove the sorting from the cards when checking the type, or can do that
+with a copy of the cards, not sorting the original one.
+
+Also, forgot to implement "OnePair"

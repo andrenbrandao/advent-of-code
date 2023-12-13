@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day7/pkg/camelcards"
 	"fmt"
 	"log"
 	"os"
@@ -15,7 +16,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(input)
+	game := camelcards.NewGameFromInput(string(input))
+	fmt.Println(game.Winnings())
 	elapsed := time.Since(start)
 	log.Printf("Took %s", elapsed)
 }
