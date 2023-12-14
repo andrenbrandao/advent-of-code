@@ -29,16 +29,16 @@ func TestGame(t *testing.T) {
 					"22234",
 					"AAKKQ",
 					"22334",
-					"AAKQJ",
+					"AAKQT",
 					"22345",
-					"AKQJT",
+					"AKQ9T",
 					"23456",
 				},
 				[]string{
 					"23456",
-					"AKQJT",
+					"AKQ9T",
 					"22345",
-					"AAKQJ",
+					"AAKQT",
 					"22334",
 					"AAKKQ",
 					"22234",
@@ -51,22 +51,22 @@ func TestGame(t *testing.T) {
 					"AAAAA",
 				},
 			},
-			// {
-			// 	[]string{
-			// 		"32T3K",
-			// 		"T55J5",
-			// 		"KK677",
-			// 		"KTJJT",
-			// 		"QQQJA",
-			// 	},
-			// 	[]string{
-			// 		"32T3K",
-			// 		"KK677",
-			// 		"T55J5",
-			// 		"QQQJA",
-			// 		"KTJJT",
-			// 	},
-			// },
+			{
+				[]string{
+					"32T3K",
+					"T55J5",
+					"KK677",
+					"KTJJT",
+					"QQQJA",
+				},
+				[]string{
+					"32T3K",
+					"KK677",
+					"T55J5",
+					"QQQJA",
+					"KTJJT",
+				},
+			},
 		}
 
 		for _, tt := range tests {
@@ -95,10 +95,9 @@ func TestGame(t *testing.T) {
 				`32T3K 765
 T55J5 684
 KK677 28
-KTJJT 220
+KTAAT 220
 QQQJA 483
-`,
-				6440,
+`, 6440,
 			},
 			{`AAAAA 2
 22222 3
@@ -110,13 +109,20 @@ AAAKQ 17
 22234 19
 AAKKQ 23
 22334 29
-AAKQJ 31
+AAKQ9 31
 22345 37
-AKQJT 41
+AKQ9T 41
 23456 43
-`,
-				1343,
-			}}
+`, 1343,
+			},
+			{
+				`32T3K 765
+T55J5 684
+KK677 28
+KTJJT 220
+QQQJA 483
+`, 5905},
+		}
 
 		for _, tt := range tests {
 			game := NewGameFromInput(tt.input)

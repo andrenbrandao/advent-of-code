@@ -65,6 +65,22 @@ func (h *Hand) Sort() {
 }
 
 func (h *Hand) Type() int {
+	hands := h.generateHands()
+
+	types := []int{}
+	for _, hand := range hands {
+		typ := hand.calculateType()
+		types = append(types, typ)
+	}
+
+	sort.Slice(types, func(i, j int) bool {
+		return types[i] > types[j]
+	})
+
+	return types[0]
+}
+
+func (h *Hand) calculateType() int {
 	for _, typeChecker := range typeCheckers {
 		handType, err := typeChecker(h)
 		if err == nil {
@@ -73,6 +89,37 @@ func (h *Hand) Type() int {
 	}
 
 	return -1
+}
+
+// generateHands creates all possible hands when we have a joker
+func (h *Hand) generateHands() []*Hand {
+	hands := []*Hand{h}
+
+	var recHelper func(pos int, currentCards []*Card)
+	recHelper = func(pos int, currentCards []*Card) {
+		if pos == len(h.cards) {
+			copiedCards := make([]*Card, len(h.cards))
+			copy(copiedCards, currentCards)
+			hands = append(hands, NewHandWithCards(copiedCards))
+			return
+		}
+
+		if h.cards[pos].IsJoker() {
+			for _, typ := range cardTypes {
+				c := NewCard(typ)
+				currentCards = append(currentCards, c)
+				recHelper(pos+1, currentCards)
+				currentCards = currentCards[:len(currentCards)-1]
+			}
+		} else {
+			currentCards = append(currentCards, h.cards[pos])
+			recHelper(pos+1, currentCards)
+			currentCards = currentCards[:len(currentCards)-1]
+		}
+	}
+
+	recHelper(0, []*Card{})
+	return hands
 }
 
 var typeCheckers = []func(h *Hand) (int, error){
