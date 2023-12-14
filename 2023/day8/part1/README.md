@@ -45,6 +45,22 @@ constructor:
 []*Node
 
 methods:
-+ StepsCount(sequence []string) int
++ StepsCount(sequence string) int
+
 
 ```
+
+## Todo
+
+### Node
+
+- [x] Create Node
+- [x] Left
+- [x] Right
+- [x] Equals
+
+### Graph
+
+- [ ] Create Graph struct
+- [ ] Map of nodes to other nodes
+- [ ] StepsCount

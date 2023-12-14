@@ -60,3 +60,27 @@ func TestNode(t *testing.T) {
 		}
 	})
 }
+
+func TestGraph(t *testing.T) {
+	t.Run("has count of nodes", func(t *testing.T) {
+		graph := NewGraphFromInstructions(
+			`RL
+
+AAA = (BBB, CCC)
+BBB = (DDD, EEE)
+CCC = (ZZZ, GGG)
+DDD = (DDD, DDD)
+EEE = (EEE, EEE)
+GGG = (GGG, GGG)
+ZZZ = (ZZZ, ZZZ)
+`,
+		)
+
+		got := graph.Count()
+		want := 7
+
+		if got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	})
+}
