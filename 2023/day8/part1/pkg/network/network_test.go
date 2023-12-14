@@ -62,9 +62,8 @@ func TestNode(t *testing.T) {
 }
 
 func TestGraph(t *testing.T) {
-	t.Run("has count of nodes", func(t *testing.T) {
-		graph := NewGraphFromInstructions(
-			`RL
+	input :=
+		`RL
 
 AAA = (BBB, CCC)
 BBB = (DDD, EEE)
@@ -73,11 +72,23 @@ DDD = (DDD, DDD)
 EEE = (EEE, EEE)
 GGG = (GGG, GGG)
 ZZZ = (ZZZ, ZZZ)
-`,
-		)
+`
+	t.Run("has count of nodes", func(t *testing.T) {
+		graph := NewGraphFromInstructions(input)
 
 		got := graph.Count()
 		want := 7
+
+		if got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	})
+
+	t.Run("count number of steps to find destination", func(t *testing.T) {
+		graph := NewGraphFromInstructions(input)
+
+		got := graph.StepsCount()
+		want := 2
 
 		if got != want {
 			t.Errorf("got %v, want %v", got, want)

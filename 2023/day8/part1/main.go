@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day8/pkg/network"
 	"fmt"
 	"log"
 	"os"
@@ -15,7 +16,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(input)
+	graph := network.NewGraphFromInstructions(string(input))
+	fmt.Println(graph.StepsCount())
 	elapsed := time.Since(start)
 	log.Printf("Took %s", elapsed)
 }

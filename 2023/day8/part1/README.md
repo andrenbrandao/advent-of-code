@@ -61,6 +61,6 @@ methods:
 
 ### Graph
 
-- [ ] Create Graph struct
-- [ ] Map of nodes to other nodes
-- [ ] StepsCount
+- [x] Create Graph struct
+- [x] Map of nodes to other nodes
+- [x] StepsCount
