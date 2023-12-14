@@ -56,7 +56,11 @@ func TestHand(t *testing.T) {
 			{"23456", "23457", false}, // high card
 
 			// jokers
-			{"QJJQ2", "TTTTQ", true}, // four of kind
+			{"QJJQ2", "TTTTQ", true},  // four of kind
+			{"QJTJ2", "TTAKQ", true},  // three of a kind
+			{"JJJJJ", "TTAKQ", true},  // five of a kind
+			{"JJJJJ", "AAAAA", false}, // five of a kind
+			{"JJJJJ", "AAAAK", true},  // five of a kind & four of a kind
 		}
 
 		for _, tt := range tests {

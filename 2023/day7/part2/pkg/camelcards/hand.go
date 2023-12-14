@@ -65,7 +65,7 @@ func (h *Hand) Sort() {
 }
 
 func (h *Hand) Type() int {
-	hands := h.generateHands()
+	hands := h.generateHandsOptimized()
 
 	types := []int{}
 	for _, hand := range hands {
@@ -119,6 +119,52 @@ func (h *Hand) generateHands() []*Hand {
 	}
 
 	recHelper(0, []*Card{})
+	return hands
+}
+
+func (h *Hand) generateHandsOptimized() []*Hand {
+	hands := []*Hand{}
+	possibleTypesSet := map[CardType]bool{}
+
+	var recHelper func(pos int, currentCards []*Card, possibleTypes []CardType)
+	recHelper = func(pos int, currentCards []*Card, possibleTypes []CardType) {
+		if pos == len(h.cards) {
+			copiedCards := make([]*Card, len(h.cards))
+			copy(copiedCards, currentCards)
+			hands = append(hands, NewHandWithCards(copiedCards))
+			return
+		}
+
+		if h.cards[pos].IsJoker() {
+			for _, typ := range possibleTypes {
+				c := NewCard(typ)
+				currentCards = append(currentCards, c)
+				recHelper(pos+1, currentCards, possibleTypes)
+				currentCards = currentCards[:len(currentCards)-1]
+			}
+		} else {
+			currentCards = append(currentCards, h.cards[pos])
+			recHelper(pos+1, currentCards, possibleTypes)
+			currentCards = currentCards[:len(currentCards)-1]
+		}
+	}
+
+	for _, c := range h.cards {
+		if !c.IsJoker() {
+			possibleTypesSet[c.cardType] = true
+		}
+	}
+
+	keys := make([]CardType, 0, len(possibleTypesSet))
+	for ct := range possibleTypesSet {
+		keys = append(keys, ct)
+	}
+
+	if len(keys) == 0 {
+		keys = []CardType{'A'}
+	}
+
+	recHelper(0, []*Card{}, keys)
 	return hands
 }
 
