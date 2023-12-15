@@ -95,6 +95,17 @@ ZZZ = (ZZZ, ZZZ)
 		}
 	})
 
+	t.Run("count number of steps to find destination (optimized)", func(t *testing.T) {
+		graph := NewGraphFromInstructions(input)
+
+		got := graph.StepsCountOptimized()
+		want := 2
+
+		if got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	})
+
 	t.Run("find number of steps from multiple sources", func(t *testing.T) {
 		input := `LR
 
@@ -110,6 +121,27 @@ XXX = (XXX, XXX)
 		graph := NewGraphFromInstructions(input)
 
 		got := graph.StepsCount()
+		want := 6
+
+		if got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	})
+	t.Run("multiple sources optimized", func(t *testing.T) {
+		input := `LR
+
+11A = (11B, XXX)
+11B = (XXX, 11Z)
+11Z = (11B, XXX)
+22A = (22B, XXX)
+22B = (22C, 22C)
+22C = (22Z, 22Z)
+22Z = (22B, 22B)
+XXX = (XXX, XXX)
+`
+		graph := NewGraphFromInstructions(input)
+
+		got := graph.StepsCountOptimized()
 		want := 6
 
 		if got != want {

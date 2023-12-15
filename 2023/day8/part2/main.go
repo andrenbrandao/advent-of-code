@@ -17,7 +17,7 @@ func main() {
 	}
 
 	graph := network.NewGraphFromInstructions(string(input))
-	fmt.Println(graph.StepsCount())
+	fmt.Println(graph.StepsCountOptimized())
 	elapsed := time.Since(start)
 	log.Printf("Took %s", elapsed)
 }

@@ -12,3 +12,13 @@ While we don´t have all in ending in 'Z':
 - Pop all sources from the queue
 - Execute the same instruction for all of them
 - Add their next nodes to the queue
+- Repeat
+
+**This algorithm takes too long. How to optimize it?**
+
+We can run the original algorithm for each source and count the steps. Then, find the Least Common Multiple of them.
+
+## Results
+
+- Non-Optimized: too long
+- Optimized: 3 ms

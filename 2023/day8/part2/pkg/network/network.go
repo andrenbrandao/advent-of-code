@@ -81,6 +81,68 @@ func (ns *NodeStep) String() string {
 	return fmt.Sprintf("%s, %d", ns.node, ns.pos)
 }
 
+// StepsCountOptimized count the necessary number of steps
+// by calculating from each source and then doing LCM
+func (g *Graph) StepsCountOptimized() int {
+	srcNodes := g.sourceNodes()
+
+	steps := []int{}
+	for _, node := range srcNodes {
+		result := g.countStepsFrom(node)
+		steps = append(steps, result)
+	}
+
+	var GCD func(a, b int) int
+	GCD = func(a, b int) int {
+		if b == 0 {
+			return a
+		}
+
+		if a < b {
+			return GCD(b, a)
+		}
+
+		return GCD(b, a%b)
+	}
+
+	var LCM func(a, b int) int
+	LCM = func(a, b int) int {
+		return a * b / GCD(a, b)
+	}
+
+	res := steps[0]
+	for i := 1; i < len(steps); i++ {
+		res = LCM(steps[i], res)
+	}
+
+	return res
+}
+
+func (g *Graph) countStepsFrom(node *Node) int {
+	count := 0
+
+	for {
+		for _, c := range g.steps {
+			if node.IsDestination() {
+				return count
+			}
+
+			count++
+
+			switch c {
+			case 'L':
+				node = node.Left()
+				continue
+			case 'R':
+				node = node.Right()
+				continue
+			default:
+				log.Fatal("Wrong direction")
+			}
+		}
+	}
+}
+
 func (g *Graph) StepsCount() int {
 	srcNodes := g.sourceNodes()
 
@@ -96,7 +158,6 @@ func (g *Graph) StepsCount() int {
 	insideQueue := []*NodeStep{}
 
 	for {
-		fmt.Println(outsideQueue)
 		insideQueue = append(insideQueue, outsideQueue...)
 		outsideQueue = outsideQueue[:0]
 
@@ -117,7 +178,6 @@ func (g *Graph) StepsCount() int {
 			nodeStep := insideQueue[0]
 			node := nodeStep.node
 			stepPos := nodeStep.pos
-			fmt.Println(nodeStep)
 
 			insideQueue = insideQueue[1:]
 
