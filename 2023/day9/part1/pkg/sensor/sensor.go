@@ -6,22 +6,32 @@ import (
 )
 
 type Sensor struct {
-	values []int
+	history [][]int
 }
 
 func NewSensor(input string) *Sensor {
-	values := []int{}
+	history := [][]int{}
 
-	vStrings := strings.Fields(input)
-	for _, val := range vStrings {
-		vInt, _ := strconv.Atoi(val)
-		values = append(values, vInt)
+	lines := strings.Split(input, "\n")
+
+	for _, line := range lines {
+		if len(line) == 0 {
+			continue
+		}
+
+		values := []int{}
+		vStrings := strings.Fields(line)
+		for _, val := range vStrings {
+			vInt, _ := strconv.Atoi(val)
+			values = append(values, vInt)
+		}
+		history = append(history, values)
 	}
 
-	return &Sensor{values}
+	return &Sensor{history}
 }
 
-func (s *Sensor) Next() int {
+func (s *Sensor) Next(day int) int {
 	var recHelper func(arr []int) int
 	recHelper = func(arr []int) int {
 		zeroCount := 0
@@ -45,5 +55,16 @@ func (s *Sensor) Next() int {
 		return lastVal + recHelper(nextArr)
 	}
 
-	return recHelper(s.values)
+	return recHelper(s.history[day])
+}
+
+func (s *Sensor) Sum() int {
+	total := 0
+
+	for day := range s.history {
+		val := s.Next(day)
+		total += val
+	}
+
+	return total
 }

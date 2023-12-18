@@ -17,7 +17,7 @@ func main() {
 	}
 
 	s := sensor.NewSensor(string(input))
-	fmt.Println(s.Next())
+	fmt.Println(s.Sum())
 	elapsed := time.Since(start)
 	log.Printf("Took %s", elapsed)
 }
