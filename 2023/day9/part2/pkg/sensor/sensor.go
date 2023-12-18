@@ -85,11 +85,22 @@ func (s *Sensor) Prev(day int) int {
 	return recHelper(s.history[day])
 }
 
-func (s *Sensor) Sum() int {
+func (s *Sensor) SumAllNext() int {
 	total := 0
 
 	for day := range s.history {
 		val := s.Next(day)
+		total += val
+	}
+
+	return total
+}
+
+func (s *Sensor) SumAllPrev() int {
+	total := 0
+
+	for day := range s.history {
+		val := s.Prev(day)
 		total += val
 	}
 

@@ -42,7 +42,7 @@ func TestSensor(t *testing.T) {
 		for _, tt := range tests {
 			sensor := NewSensor(tt.input)
 
-			got := sensor.Sum()
+			got := sensor.SumAllNext()
 			want := tt.want
 
 			if got != want {
@@ -64,6 +64,29 @@ func TestSensor(t *testing.T) {
 			sensor := NewSensor(tt.input)
 
 			got := sensor.Prev(0)
+			want := tt.want
+
+			if got != want {
+				t.Errorf("got %v, want %v", got, want)
+			}
+		}
+	})
+
+	t.Run("sums all the prev values", func(t *testing.T) {
+		tests := []struct {
+			input string
+			want  int
+		}{
+			{`0 3 6 9 12 15
+1 3 6 10 15 21
+10 13 16 21 30 45
+			`, 2},
+		}
+
+		for _, tt := range tests {
+			sensor := NewSensor(tt.input)
+
+			got := sensor.SumAllPrev()
 			want := tt.want
 
 			if got != want {
