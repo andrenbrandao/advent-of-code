@@ -35,3 +35,26 @@ L-------J
   - When we reach back to S, we have found the cycle
 
 We keep track of the number of steps during the DFS. The total / 2 is the answer.
+
+## Design
+
+```
+MazeFactory
+- input string
++ create() *Maze
+
+Maze
+- aMap [][]Tile
++ StartingPos() Pos
+
+Tile (interface)
++ Neighbors() []Pos
+
+Ground
+- pos Pos
++ Neighbors() []Pos
+
+Pipe
+- pos Pos
++ Neighbors() []Pos
+```

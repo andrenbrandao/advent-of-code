@@ -1,5 +1,10 @@
 package maze
 
+import (
+	"errors"
+	"strings"
+)
+
 type Pos struct {
 	x int
 	y int
@@ -40,6 +45,10 @@ func (p *Pipe) Neighbors() []Pos {
 	return []Pos{}
 }
 
+func (p *Pipe) Char() rune {
+	return p.pipeType
+}
+
 type Ground struct {
 	pos Pos
 }
@@ -50,4 +59,54 @@ func NewGround(pos Pos) *Ground {
 
 func (g *Ground) Neighbors() []Pos {
 	return []Pos{}
+}
+
+func (g *Ground) Char() rune {
+	return '.'
+}
+
+type Tile interface {
+	Neighbors() []Pos
+	Char() rune
+}
+type Maze struct {
+	tiles [][]Tile
+}
+
+func NewMazeFromString(input string) *Maze {
+	tiles := [][]Tile{}
+	lines := strings.Split(input, "\n")
+
+	for i, line := range lines {
+		if len(line) == 0 {
+			continue
+		}
+
+		currentTiles := []Tile{}
+
+		for j, c := range line {
+			if c == '.' {
+				currentTiles = append(currentTiles, NewGround(Pos{i, j}))
+				continue
+			}
+
+			currentTiles = append(currentTiles, NewPipe(c, Pos{i, j}))
+		}
+
+		tiles = append(tiles, currentTiles)
+	}
+
+	return &Maze{tiles}
+}
+
+func (m *Maze) StartingPos() (Pos, error) {
+	for i := range m.tiles {
+		for j := range m.tiles[i] {
+			if m.tiles[i][j].Char() == 'S' {
+				return Pos{j, i}, nil
+			}
+		}
+	}
+
+	return Pos{0, 0}, errors.New("No starting position found")
 }

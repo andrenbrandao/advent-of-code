@@ -58,3 +58,30 @@ func TestGround(t *testing.T) {
 	})
 
 }
+
+func TestMaze(t *testing.T) {
+
+	t.Run("returns the starting position", func(t *testing.T) {
+		tests := []struct {
+			maze string
+			want Pos
+		}{
+			{`..S`, Pos{2, 0}},
+			{`...
+.S.
+...`, Pos{1, 1}},
+		}
+
+		for _, tt := range tests {
+			maze := NewMazeFromString(tt.maze)
+
+			got, _ := maze.StartingPos()
+			want := tt.want
+
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("maze %s, got %v, want %v", tt.maze, got, want)
+			}
+		}
+	})
+
+}
