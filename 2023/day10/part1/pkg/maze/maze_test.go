@@ -34,3 +34,27 @@ func TestPipe(t *testing.T) {
 	})
 
 }
+
+func TestGround(t *testing.T) {
+
+	t.Run("returns the next positions as empty array", func(t *testing.T) {
+		tests := []struct {
+			typ  rune
+			want []Pos
+		}{
+			{'.', []Pos{}},
+		}
+
+		for _, tt := range tests {
+			ground := NewGround(Pos{0, 0})
+
+			got := ground.Neighbors()
+			want := tt.want
+
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("type %c, got %v, want %v", tt.typ, got, want)
+			}
+		}
+	})
+
+}

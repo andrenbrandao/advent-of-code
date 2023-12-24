@@ -39,3 +39,15 @@ func (p *Pipe) Neighbors() []Pos {
 
 	return []Pos{}
 }
+
+type Ground struct {
+	pos Pos
+}
+
+func NewGround(pos Pos) *Ground {
+	return &Ground{pos}
+}
+
+func (g *Ground) Neighbors() []Pos {
+	return []Pos{}
+}
