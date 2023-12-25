@@ -1,6 +1,7 @@
 package main
 
 import (
+	"day10/pkg/maze"
 	"fmt"
 	"log"
 	"os"
@@ -15,7 +16,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(input)
+	maze := maze.NewMazeFromString(string(input))
+	fmt.Println(maze.FarthestSteps())
 	elapsed := time.Since(start)
 	log.Printf("Took %s", elapsed)
 }
