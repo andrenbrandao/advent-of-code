@@ -2,6 +2,7 @@ package maze
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -77,7 +78,8 @@ func NewMazeFromString(input string) *Maze {
 	tiles := [][]Tile{}
 	lines := strings.Split(input, "\n")
 
-	for i, line := range lines {
+	i := 0
+	for _, line := range lines {
 		if len(line) == 0 {
 			continue
 		}
@@ -86,14 +88,15 @@ func NewMazeFromString(input string) *Maze {
 
 		for j, c := range line {
 			if c == '.' {
-				currentTiles = append(currentTiles, NewGround(Pos{i, j}))
+				currentTiles = append(currentTiles, NewGround(Pos{j, i}))
 				continue
 			}
 
-			currentTiles = append(currentTiles, NewPipe(c, Pos{i, j}))
+			currentTiles = append(currentTiles, NewPipe(c, Pos{j, i}))
 		}
 
 		tiles = append(tiles, currentTiles)
+		i++
 	}
 
 	return &Maze{tiles}
@@ -109,4 +112,69 @@ func (m *Maze) StartingPos() (Pos, error) {
 	}
 
 	return Pos{0, 0}, errors.New("No starting position found")
+}
+
+func (m *Maze) CycleSteps() int {
+	visited := map[Pos]bool{}
+
+	startPos, err := m.StartingPos()
+	if err != nil {
+		panic(err)
+	}
+
+	cycleDetected := false
+
+	var dfs func(pos Pos, lastPos Pos) (int, error)
+	dfs = func(pos Pos, lastPos Pos) (int, error) {
+		i := pos.y
+		j := pos.x
+		height := len(m.tiles)
+		width := len(m.tiles[0])
+
+		if i < 0 || i >= height || j < 0 || j >= width {
+			return 0, errors.New("Invalid position")
+		}
+
+		currentTile := m.tiles[i][j]
+		visited[pos] = true
+
+		steps := 0
+		for _, neighbor := range currentTile.Neighbors() {
+			if neighbor == startPos && startPos != lastPos {
+				cycleDetected = true
+				return 1, nil
+			}
+
+			if visited[neighbor] {
+				continue
+			}
+
+			fmt.Printf("%v, %c, steps: %d\n", neighbor, m.tiles[neighbor.y][neighbor.x].Char(), steps)
+			currentPathSteps, err := dfs(neighbor, pos)
+			if err != nil {
+				continue
+			}
+
+			steps = max(steps, 1+currentPathSteps)
+			fmt.Printf("%v, %c, steps: %d\n", neighbor, m.tiles[neighbor.y][neighbor.x].Char(), steps)
+		}
+
+		return steps, nil
+	}
+
+	steps, err := dfs(startPos, startPos)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if cycleDetected {
+		return steps
+	}
+
+	return 0
+}
+
+func (m *Maze) FarthestSteps() int {
+	return m.CycleSteps() / 2
 }

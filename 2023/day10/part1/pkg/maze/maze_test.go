@@ -84,4 +84,59 @@ func TestMaze(t *testing.T) {
 		}
 	})
 
+	t.Run("counts steps to walk the cycle from the starting position", func(t *testing.T) {
+		tests := []struct {
+			maze string
+			want int
+		}{
+			{`
+.....
+.S-7.
+.|.|.
+.L-J.
+.....`, 8},
+			{`
+.....
+.S.7.
+.|.|.
+.L-J.
+.....`, 0},
+		}
+
+		for _, tt := range tests {
+			maze := NewMazeFromString(tt.maze)
+
+			got := maze.CycleSteps()
+			want := tt.want
+
+			if got != want {
+				t.Errorf("maze %s, got %v, want %v", tt.maze, got, want)
+			}
+		}
+	})
+
+	t.Run("farthest steps from the starting position", func(t *testing.T) {
+		tests := []struct {
+			maze string
+			want int
+		}{
+			{`
+.....
+.S-7.
+.|.|.
+.L-J.
+.....`, 4},
+		}
+
+		for _, tt := range tests {
+			maze := NewMazeFromString(tt.maze)
+
+			got := maze.FarthestSteps()
+			want := tt.want
+
+			if got != want {
+				t.Errorf("maze %s, got %v, want %v", tt.maze, got, want)
+			}
+		}
+	})
 }
