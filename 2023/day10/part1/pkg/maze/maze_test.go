@@ -33,6 +33,58 @@ func TestPipe(t *testing.T) {
 		}
 	})
 
+	t.Run("can only enter through the entrance", func(t *testing.T) {
+		left := Pos{-1, 0}
+		top := Pos{0, -1}
+		right := Pos{1, 0}
+		bottom := Pos{0, 1}
+
+		tests := []struct {
+			pipeType rune
+			lastPos  Pos
+			want     bool
+		}{
+			{'|', left, false},
+			{'|', top, true},
+			{'|', right, false},
+			{'|', bottom, true},
+			{'-', left, true},
+			{'-', top, false},
+			{'-', right, true},
+			{'-', bottom, false},
+			{'L', left, false},
+			{'L', top, true},
+			{'L', right, true},
+			{'L', bottom, false},
+			{'J', left, true},
+			{'J', top, true},
+			{'J', right, false},
+			{'J', bottom, false},
+			{'7', left, true},
+			{'7', top, false},
+			{'7', right, false},
+			{'7', bottom, true},
+			{'F', left, false},
+			{'F', top, false},
+			{'F', right, true},
+			{'F', bottom, true},
+			{'S', left, true},
+			{'S', top, true},
+			{'S', right, true},
+			{'S', bottom, true},
+		}
+
+		for _, tt := range tests {
+			pipe := NewPipe(tt.pipeType, Pos{0, 0})
+
+			got := pipe.CanEnterFrom(tt.lastPos)
+			want := tt.want
+
+			if got != want {
+				t.Errorf("type %c, got %v, want %v", tt.pipeType, got, want)
+			}
+		}
+	})
 }
 
 func TestGround(t *testing.T) {
@@ -101,6 +153,18 @@ func TestMaze(t *testing.T) {
 .|.|.
 .L-J.
 .....`, 0},
+			{`
+.....
+.SF7.
+.|.|.
+.L-J.
+.....`, 0}, // should only walk through entrance and exit of pipes
+			{`
+-L|F7
+7S-7|
+L|7||
+-L-J|
+L|-JF`, 8},
 		}
 
 		for _, tt := range tests {
@@ -126,6 +190,12 @@ func TestMaze(t *testing.T) {
 .|.|.
 .L-J.
 .....`, 4},
+			{`
+..F7.
+.FJ|.
+SJ.L7
+|F--J
+LJ...`, 8},
 		}
 
 		for _, tt := range tests {

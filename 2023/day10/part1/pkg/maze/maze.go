@@ -2,7 +2,6 @@ package maze
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -50,6 +49,31 @@ func (p *Pipe) Char() rune {
 	return p.pipeType
 }
 
+func (p *Pipe) CanEnterFrom(lastPos Pos) bool {
+	top := Pos{p.pos.x, p.pos.y - 1}
+	bottom := Pos{p.pos.x, p.pos.y + 1}
+	left := Pos{p.pos.x - 1, p.pos.y}
+	right := Pos{p.pos.x + 1, p.pos.y}
+
+	switch p.pipeType {
+	case '|':
+		return lastPos == top || lastPos == bottom
+	case '-':
+		return lastPos == left || lastPos == right
+	case 'L':
+		return lastPos == top || lastPos == right
+	case 'J':
+		return lastPos == left || lastPos == top
+	case '7':
+		return lastPos == left || lastPos == bottom
+	case 'F':
+		return lastPos == right || lastPos == bottom
+	case 'S':
+		return lastPos == left || lastPos == top || lastPos == right || lastPos == bottom
+	}
+	return false
+}
+
 type Ground struct {
 	pos Pos
 }
@@ -66,9 +90,14 @@ func (g *Ground) Char() rune {
 	return '.'
 }
 
+func (g *Ground) CanEnterFrom(lastPos Pos) bool {
+	return false
+}
+
 type Tile interface {
 	Neighbors() []Pos
 	Char() rune
+	CanEnterFrom(p Pos) bool
 }
 type Maze struct {
 	tiles [][]Tile
@@ -124,18 +153,13 @@ func (m *Maze) CycleSteps() int {
 
 	cycleDetected := false
 
+	height := len(m.tiles)
+	width := len(m.tiles[0])
+
 	var dfs func(pos Pos, lastPos Pos) (int, error)
 	dfs = func(pos Pos, lastPos Pos) (int, error) {
-		i := pos.y
-		j := pos.x
-		height := len(m.tiles)
-		width := len(m.tiles[0])
 
-		if i < 0 || i >= height || j < 0 || j >= width {
-			return 0, errors.New("Invalid position")
-		}
-
-		currentTile := m.tiles[i][j]
+		currentTile := m.tiles[pos.y][pos.x]
 		visited[pos] = true
 
 		steps := 0
@@ -145,18 +169,22 @@ func (m *Maze) CycleSteps() int {
 				return 1, nil
 			}
 
-			if visited[neighbor] {
+			i := neighbor.y
+			j := neighbor.x
+			// out of bounds neighbor
+			// visited
+			// or invalid pipe entrance
+			// should be ignored
+			if i < 0 || i >= height || j < 0 || j >= width || visited[neighbor] || !m.tiles[neighbor.y][neighbor.x].CanEnterFrom(pos) {
 				continue
 			}
 
-			fmt.Printf("%v, %c, steps: %d\n", neighbor, m.tiles[neighbor.y][neighbor.x].Char(), steps)
 			currentPathSteps, err := dfs(neighbor, pos)
 			if err != nil {
 				continue
 			}
 
 			steps = max(steps, 1+currentPathSteps)
-			fmt.Printf("%v, %c, steps: %d\n", neighbor, m.tiles[neighbor.y][neighbor.x].Char(), steps)
 		}
 
 		return steps, nil
